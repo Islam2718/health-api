@@ -1,4 +1,4 @@
-# 📘 SBPedia API
+# 📘 Health API
 
 A scalable, modular, and enterprise-ready API built with **Laravel 13** using **Clean Architecture** principles.
 
@@ -6,7 +6,7 @@ A scalable, modular, and enterprise-ready API built with **Laravel 13** using **
 
 ## 🚀 Project Overview
 
-**SBPedia API** is a large-scale backend system designed to support multiple domains and modules such as:
+**Health API** is a large-scale backend system designed to support multiple domains and modules such as:
 
 * User Management (all user are patient)
 * Doctor
@@ -144,7 +144,7 @@ http://127.0.0.1:8000/docs/api
 
 ```bash
 git clone <repo-url>
-cd sbpedia-api
+cd health-api
 ```
 
 ---
