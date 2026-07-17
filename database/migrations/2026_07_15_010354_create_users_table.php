@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('phone')->unique()->nullable();
             $table->string('username')->unique()->nullable();
             $table->string('password');
-            $table->string('type')->default('user');
+            $table->string('type')->default('USER');
             // Custom Fields (IMPORTANT)
             $table->string('gender')->nullable();
             $table->date('date_of_birth')->nullable();

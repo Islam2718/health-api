@@ -31,6 +31,22 @@ return [
      */
     'export_path' => 'api.json',
 
+    'security' => [
+        'bearerAuth' => [
+            'type' => 'http',
+            'scheme' => 'bearer',
+        ],
+    ],    
+
+    'components' => [
+        'securitySchemes' => [
+            'bearerAuth' => [
+                'type' => 'http',
+                'scheme' => 'bearer',
+            ],
+        ],
+    ],
+
     /*
      * Cache configuration for the generated OpenAPI document.
      *
@@ -169,6 +185,6 @@ return [
      *     ],
      * ],
      */
-    // 'security_strategy' => \Dedoc\Scramble\SecurityDocumentation\MiddlewareAuthSecurityStrategy::class,
-    'security_strategy' => null,
+    'security_strategy' => \Dedoc\Scramble\SecurityDocumentation\MiddlewareAuthSecurityStrategy::class,
+    // 'security_strategy' => null,
 ];
