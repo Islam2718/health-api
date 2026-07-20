@@ -1,4 +1,4 @@
-name: Deploy to Namecheap
+name: Deploy to Namecheap via SSH
 
 on:
   push:
@@ -10,13 +10,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          server: ftp.yourdomain.com
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: public_html/health-api/
+          php-version: '8.3'
+          extensions: mbstring, xml, curl, zip, bcmath
+          coverage: none
+
+      - name: Deploy files via rsync
+        uses: burnett01/rsync-deployments@7.1.0
+        with:
+          switches: -avz --delete --exclude=".env" --exclude=".git" --exclude="storage/**" --exclude="bootstrap/cache/**"
+          path: ./
+          remote_path: ${{ secrets.APP_PATH }}
+          remote_host: ${{ secrets.SSH_HOST }}
+          remote_user: ${{ secrets.SSH_USER }}
+          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          remote_port: ${{ secrets.SSH_PORT }}
+
+      - name: Run Laravel Commands on Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd ${{ secrets.APP_PATH }}
+            php artisan migrate --force
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan optimize:clear
