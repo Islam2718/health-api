@@ -22,9 +22,10 @@ jobs:
           ini-values: memory_limit=-1
 
       - name: Install Composer dependencies
+        env:
+          COMPOSER_MEMORY_LIMIT: -1
         run: |
           composer clear-cache
-          composer config --global memory_limit -1
           composer install --no-interaction --prefer-dist --no-scripts
 
       - name: Run tests before deploy
