@@ -43,7 +43,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * Casts
+     * type Casts
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
