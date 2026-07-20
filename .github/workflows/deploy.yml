@@ -30,7 +30,7 @@ jobs:
           php artisan test
 
       - name: Deploy files via rsync
-        uses: burnett01/rsync-deployments@8.0.0
+        uses: burnett01/rsync-deployments@v9
         with:
           switches: -avz --delete --exclude=".env" --exclude=".git" --exclude="storage/**" --exclude="bootstrap/cache/**"
           path: ./
@@ -39,6 +39,7 @@ jobs:
           remote_user: ${{ secrets.SSH_USER }}
           remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
           remote_port: ${{ secrets.SSH_PORT }}
+          debug: true
 
       - name: Run Laravel Commands on Server
         uses: appleboy/ssh-action@v1.2.0
