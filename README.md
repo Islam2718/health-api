@@ -1,283 +1,192 @@
-# 📘 Health API
+# Health API
 
-A scalable, modular, and enterprise-ready API built with **Laravel 13** using **Clean Architecture** principles.
+Health API is a modular backend platform for healthcare services built with Laravel 13 and Clean Architecture principles. The project is designed to grow into a multi-domain system for patients, doctors, hospitals, ambulances, diagnostic centers, and pharmacy operations.
 
----
+## Project Goals
 
-## 🚀 Project Overview
+- Build a scalable and maintainable API foundation
+- Keep business logic independent from framework-specific code
+- Support future modules without tightly coupling features
+- Provide a clean structure for onboarding new developers quickly
 
-**Health API** is a large-scale backend system designed to support multiple domains and modules such as:
+## Tech Stack
 
-* User Management (all user are patient)
-* Doctor
-* Hospital
-* Medicine Store
-* Ambulance
+- PHP 8.3+
+- Laravel 13
+- Laravel Sanctum for authentication
+- Scramble for API documentation
+- Vite + Tailwind for frontend assets
+- PHPUnit for automated testing
 
-## Project Summary 
- A web based project api. This project will like - User can browse a website and can see the doctor, ambulance, blood donor, hospital, Diagonostic center. brief below - 
- * Doctor: user can find a doctor and see the doctor meeting schedule. and join into a available schedule after that can visit the doctor. and the doctor can assign the test list for a patient. and can see the patient test report and can create a prescription. doctor can see the old prescription and reports of a patient etc. 
- * Patient: user can create a patient profile. can join a doctor meeting schedule, can see him/her prescription, diagonos reports etc. 
- * Ambulance: user can add ambulance for rent. and patient can see the information of ambulance to rent. 
- * Hospital: user can create hospital as owner. can assign employee, room, bed, ot, doctor etc. (total hospital management)
- * Medicine Store: User can create a medicine store. can galleriesed his shop product price from system provided medicine list. can sale, can manage store and stock. can manage order, can manage due etc POS of medicine shop features. 
- * Diagonstic Center: user can create diagonostic center profile. can update the price list of entire test service of this centre. can manage order, can update the patient simple collection, reports, employees etc. 
+## Architecture Overview
 
-> This is a project for entire medical system Sass Type project. 
+This project follows a layered Clean Architecture approach:
 
----
+Request -> Controller -> UseCase -> Repository -> Model/Database
 
-## 🧱 Architecture
+### Recommended folder structure
 
-This project follows **Clean Architecture (Layered Approach)**:
-
-```
-Request → Controller → UseCase → Repository → Model (DB)
-```
-
-### 📂 Folder Structure
-
-```
+```text
 app/
 ├── Domain/
 │   ├── Entities/
-│   ├── Interfaces/
-│
+│   └── Interfaces/
 ├── Application/
-│   ├── UseCases/
 │   ├── DTOs/
-│
+│   └── UseCases/
 ├── Infrastructure/
-│   ├── Persistence/
-│   │   ├── Models/
-│   │   ├── Repositories/
-│
+│   └── Persistence/
 ├── Http/
 │   ├── Controllers/
 │   ├── Requests/
-│
-├── Providers/
+│   └── Resources/
+└── Providers/
 ```
 
----
+## Development Principles
 
-## 🧠 Core Principles
+All contributors should follow these rules:
 
-* ❌ No business logic in Controllers
-* ✅ Business logic inside UseCases
-* ❌ Direct Eloquent usage in Controller
-* ✅ Repository pattern enforced
-* ✅ Dependency Injection used
-* ✅ Scalable & testable structure
+- Keep controllers thin and focused on request handling
+- Put business logic in Use Cases
+- Use Form Requests for validation
+- Use DTOs for input/output transfer between layers
+- Put repository interfaces in the Domain layer and implementations in Infrastructure
+- Avoid mixing framework code with core business rules
+- Prefer dependency injection over hard-coded dependencies
+- Write tests for new features and bug fixes
 
----
+## Getting Started
 
-## 🔐 Authentication System
-
-### ✔ Features Implemented
-
-* Login with:
-
-  * Email
-  * Username
-  * Phone
-* Password-based authentication
-* Token-based authentication using **Laravel Sanctum**
-
-### 📥 Login Request Example
-
-```json
-{
-  "identifier": "email বা username বা phone",
-  "password": "123456"
-}
-```
-
----
-
-## 🧩 Modules (Planned & Ongoing)
-
-| Module       | Status        |
-| ------------ | ------------- |
-| User         | ✅ Basic Ready |
-| Doctor | ⏳ Planned     |
-| Patient  | ⏳ Planned     |
-| Hospital | ⏳ Planned     |
-| Diagonstic Center | ⏳ Planned     |
-| Ambulance service | ⏳ Planned     |
-| Blood Donor | ⏳ Planned     |
-
----
-
-## 📄 API Documentation
-
-### ⚡ Tool Used: Scramble (Auto Documentation)
-
-* No manual annotation required
-* Auto-generates API docs from:
-
-  * Routes
-  * Controllers
-  * Form Requests
-
-### 🔗 Access Docs
-
-```
-http://127.0.0.1:8000/docs/api
-```
-
----
-
-## ❌ Removed Tools
-
-* Swagger (L5-Swagger) ❌ removed
-* Reason:
-
-  * Requires manual annotation
-  * Not suitable for fast development
-
----
-
-## ⚙️ Installation Guide
-
-### 1. Clone Project
+### 1. Clone and enter the project
 
 ```bash
 git clone <repo-url>
 cd health-api
 ```
 
----
-
-### 2. Install Dependencies
+### 2. Install PHP and Node dependencies
 
 ```bash
 composer install
+npm install
 ```
 
----
-
-### 3. Setup Environment
+### 3. Environment setup
 
 ```bash
 cp .env.example .env
 php artisan key:generate
 ```
 
----
-
-### 4. Database Setup
+### 4. Database setup
 
 ```bash
 php artisan migrate
 ```
 
----
+### 5. Run the application
 
-### 5. Install Sanctum
+For local development, use:
 
 ```bash
-composer require laravel/sanctum
-php artisan migrate
+composer run dev
 ```
 
----
-
-### 6. Run Server
+Or run the backend and frontend separately:
 
 ```bash
 php artisan serve
+npm run dev
 ```
 
----
+## Useful Commands
 
-## 🔌 Service Container Binding
-
-Example:
-
-```php
-$this->app->bind(
-    UserRepository::class,
-    UserRepositoryImpl::class
-);
+```bash
+composer test
+php artisan migrate
+php artisan route:list
+php artisan tinker
+php artisan pint
 ```
 
----
+## API Documentation
 
-## 🧪 API Testing
+API documentation is generated automatically with Scramble.
 
-Use:
+Open the docs at:
 
-* Scramble UI (Recommended)
-* OR Postman (Optional)
+```text
+http://127.0.0.1:8000/docs/api
+```
 
----
+## Authentication
 
-## 🚀 Development Guidelines
+The current authentication flow uses Laravel Sanctum.
 
-### ✔ Must Follow
+### Expected login payload example
 
-* Use **UseCase per feature**
-* Use **FormRequest for validation**
-* Use **Repository Interface**
-* Keep **Domain independent**
+```json
+{
+  "identifier": "email or username or phone",
+  "password": "your-password"
+}
+```
 
----
+## Coding Guidelines for Future Developers
 
-### ❌ Avoid
+### Feature development workflow
 
-* Fat Controllers
-* Direct DB calls inside Controller
-* Mixing business logic with framework code
+1. Create a feature branch from the main branch
+2. Add or update the relevant Use Case, DTO, repository interface, and implementation
+3. Keep controllers focused on HTTP concerns only
+4. Add validation with Form Requests
+5. Write tests before finalizing the feature
+6. Run the relevant test suite before pushing changes
 
----
+### Naming and structure
 
-## 🔮 Future Roadmap
+- Use descriptive names for modules and classes
+- Follow Laravel naming conventions
+- Keep each feature self-contained where possible
+- Group related routes, controllers, requests, and use cases by domain/module
 
-* Role-based Access Control (RBAC)
-* Multi-tenant support
-* Microservice-ready structure
-* Queue & Job system
-* Notification system (Email/SMS)
-* Audit logs
-* API versioning
+### Avoid
 
----
+- Fat controllers
+- Business logic inside controllers
+- Direct database logic inside HTTP layer
+- Repeated code across modules
+- Large mixed-purpose classes
 
-## 🧠 AI Usage Instruction (IMPORTANT)
+## Testing Expectations
 
-When using AI tools (ChatGPT, etc.):
+Every new feature or bug fix should include tests when practical.
 
-👉 Always provide this README.md
-👉 Ask for **step-by-step implementation based on Clean Architecture**
+Run tests with:
 
-### Example Prompt:
+```bash
+composer test
+```
 
-> "Based on this README, implement Organization Module with Clean Architecture"
+## Module Roadmap
 
----
+Planned or ongoing modules include:
 
-## 🎯 Goal
+- User / Patient management
+- Doctor management
+- Hospital management
+- Ambulance services
+- Diagnostic center management
+- Pharmacy / medicine store workflows
+- Blood donor services
 
-To build a **scalable, maintainable, enterprise-grade API system** that can support multiple domains and grow over time.
+## AI and Contributor Guidance
 
----
+When working with AI tools or asking for implementation help, share this README and describe the module or feature you want to build. Prefer prompts such as:
 
-## 👨‍💻 Author
+> Implement the Hospital module using the existing Clean Architecture structure and follow the project conventions in this README.
 
-Islam Hossain
-Full Stack Developer (Laravel + .NET + React)
+## Final Note
 
----
-
-## ⭐ Final Note
-
-This project is designed for:
-
-* Long-term scalability
-* Clean and maintainable codebase
-* Real-world enterprise usage
-
----
-
-🚀 Happy Coding!
+This repository is intended to be a long-term, scalable, and maintainable platform. New features should be added in a way that preserves the project’s architecture and keeps the codebase easy for future developers to understand.
