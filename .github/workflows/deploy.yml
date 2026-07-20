@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -20,8 +20,17 @@ jobs:
           extensions: mbstring, xml, curl, zip, bcmath
           coverage: none
 
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Run tests before deploy
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          php artisan test
+
       - name: Deploy files via rsync
-        uses: burnett01/rsync-deployments@7.1.0
+        uses: burnett01/rsync-deployments@8.0.0
         with:
           switches: -avz --delete --exclude=".env" --exclude=".git" --exclude="storage/**" --exclude="bootstrap/cache/**"
           path: ./
@@ -32,7 +41,7 @@ jobs:
           remote_port: ${{ secrets.SSH_PORT }}
 
       - name: Run Laravel Commands on Server
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
