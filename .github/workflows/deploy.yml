@@ -19,9 +19,13 @@ jobs:
           php-version: '8.3'
           extensions: mbstring, xml, curl, zip, bcmath
           coverage: none
+          ini-values: memory_limit=-1
 
       - name: Install Composer dependencies
-        run: composer install --no-interaction --prefer-dist
+        run: |
+          composer clear-cache
+          composer config --global memory_limit -1
+          composer install --no-interaction --prefer-dist --no-scripts
 
       - name: Run tests before deploy
         run: |
