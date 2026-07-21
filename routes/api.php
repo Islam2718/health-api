@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\ForgotPasswordController;
+use App\Http\Controllers\Api\DoctorController;
+use App\Http\Controllers\Api\EducationController;
+use App\Http\Controllers\Api\ProfessionalExperienceController;
 use App\Http\Controllers\Api\UserController;
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -18,4 +21,7 @@ Route::prefix('auth')->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('users', UserController::class);
+    Route::apiResource('doctors', DoctorController::class);
+    Route::apiResource('educations', EducationController::class);
+    Route::apiResource('professional-experiences', ProfessionalExperienceController::class);
 });
