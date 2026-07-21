@@ -20,20 +20,28 @@ jobs:
           extensions: mbstring, xml, curl, zip, bcmath
           coverage: none
 
+      # ✅ FIX: dev dependencies needed for tests
       - name: 📦 Install Composer dependencies
         run: |
-          composer install --no-dev --optimize-autoloader --no-interaction
+          composer install --no-interaction --prefer-dist
 
-      - name: 🧪 Run tests before deploy
+      # ✅ Laravel test প্রস্তুত করা
+      - name: 🧪 Prepare environment & run tests
         run: |
           cp .env.example .env
           php artisan key:generate
           php artisan test
 
+      # 🚀 Deploy files
       - name: 🚀 Deploy via rsync
         uses: burnett01/rsync-deployments@v9
         with:
-          switches: -avz --delete --exclude=".env" --exclude=".git" --exclude="storage/**" --exclude="bootstrap/cache/**"
+          switches: -avz --delete \
+            --exclude=".env" \
+            --exclude=".git" \
+            --exclude="node_modules" \
+            --exclude="storage/**" \
+            --exclude="bootstrap/cache/**"
           path: ./
           remote_path: ${{ secrets.APP_PATH }}
           remote_host: ${{ secrets.SSH_HOST }}
@@ -41,6 +49,7 @@ jobs:
           remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
           remote_port: ${{ secrets.SSH_PORT }}
 
+      # ⚙️ Run commands on server
       - name: ⚙️ Run Laravel commands on server
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -50,6 +59,10 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             cd ${{ secrets.APP_PATH }}
+
+            # ✅ install optimized deps on server
+            composer install --no-dev --optimize-autoloader --no-interaction
+
             php artisan migrate --force
             php artisan optimize:clear
             php artisan config:cache
