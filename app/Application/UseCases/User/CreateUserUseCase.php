@@ -3,7 +3,6 @@
 namespace App\Application\UseCases\User;
 
 use App\Domain\Interfaces\UserRepository;
-use Illuminate\Support\Facades\Hash;
 
 class CreateUserUseCase
 {
@@ -11,7 +10,10 @@ class CreateUserUseCase
 
     public function execute(array $data)
     {
-        $data['password'] = Hash::make($data['password']);
+        if (!isset($data['type']) || empty($data['type'])) {
+            $data['type'] = 'USER';
+        }
+
         return $this->repo->create($data);
     }
 }

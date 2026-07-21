@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\UserController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
+Route::middleware('auth:sanctum')->patch('/profile', [AuthController::class, 'updateProfile']);
 Route::post('/register', [AuthController::class, 'register']);
 
 Route::prefix('auth')->group(function () {

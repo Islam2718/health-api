@@ -34,8 +34,14 @@ class UserController extends Controller
 
     public function update($id, UpdateUserRequest $request, UpdateUserUseCase $useCase)
     {
+        $data = $request->validated();
+
+        if ($request->hasFile('profile_image')) {
+            $data['profile_image'] = $request->file('profile_image')->store('profile_images', 'public');
+        }
+
         return response()->json(
-            $useCase->execute($id, $request->validated())
+            $useCase->execute($id, $data)
         );
     }
 

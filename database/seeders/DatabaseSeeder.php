@@ -27,8 +27,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'System Admin',
                 'email' => 'system@mail.com',
-                'phone' => '01710001337',
-                'username' => 'SystemAdmin',
+                'phone' => '01710001337',                
                 'password' => Hash::make('123456'),
                 'type' => 'ADMIN',
                 'gender' => 'MALE',
@@ -43,7 +42,6 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Patient User 1',
                 'email' => 'patient1@health.com',
                 'phone' => '01914441334',
-                'username' => 'Patient1',
                 'password' => Hash::make('123456'),
                 'type' => 'PATIENT',
                 'gender' => 'MALE',

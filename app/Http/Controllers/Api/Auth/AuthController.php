@@ -22,8 +22,7 @@ class AuthController extends Controller
         ]);
 
         $user = User::where('email', $validated['identifier'])
-            ->orWhere('phone', $validated['identifier'])
-            ->orWhere('username', $validated['identifier'])
+            ->orWhere('phone', $validated['identifier'])            
             ->first();
 
         if (!$user || !Hash::check($validated['password'], $user->password)) {
@@ -64,7 +63,7 @@ class AuthController extends Controller
     /**
      * Register
      *
-     * (email / phone / username)
+     * (email / phone)
      *
      * @response 201 {
      *   "message": "User registered successfully",
@@ -78,30 +77,25 @@ class AuthController extends Controller
      */
     public function register(Request $request): JsonResponse
     {
-        // 🔹 Validate (email / phone / username - any one required)
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'password' => ['required', 'string', 'min:6'],
-
             'email' => ['nullable', 'email', 'unique:users,email'],
             'phone' => ['nullable', 'string', 'unique:users,phone'],
-            'username' => ['nullable', 'string', 'unique:users,username'],
+            'password' => ['required', 'string', 'min:6', 'confirmed'],
         ]);
 
-        // 🔥 Ensure at least one identifier দেওয়া আছে
-        if (!$request->email && !$request->phone && !$request->username) {
+        if (!$request->email && !$request->phone) {
             return response()->json([
-                'message' => 'Email or phone or username is required'
+                'message' => 'Email or phone is required'
             ], 422);
         }
 
-        // 🔹 Create user
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'] ?? null,
             'phone' => $validated['phone'] ?? null,
-            'username' => $validated['username'] ?? null,
             'password' => $validated['password'],
+            'type' => 'USER',
         ]);
 
         // 🔹 Create token (Sanctum)
@@ -112,5 +106,40 @@ class AuthController extends Controller
             'token' => $token,
             'user' => $user,
         ], 201);
+    }
+
+    /**
+     * Update profile (ONLY USE TOKEN NO ID)
+     *
+     * @authenticated
+     */
+    public function updateProfile(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'name' => ['nullable', 'string', 'max:255'],
+            'email' => ['nullable', 'email', 'unique:users,email,' . $request->user()->id],
+            'phone' => ['nullable', 'string', 'unique:users,phone,' . $request->user()->id],
+            'password' => ['nullable', 'string', 'min:6'],
+            'type' => ['nullable', 'string', 'max:255'],
+            'gender' => ['nullable', 'string', 'max:255'],
+            'date_of_birth' => ['nullable', 'date'],
+            'profile_image' => ['nullable'],
+            'address' => ['nullable', 'string'],
+            'blood_group' => ['nullable', 'string', 'max:20'],
+            'marital_status' => ['nullable', 'string', 'max:50'],
+        ]);
+
+        if ($request->hasFile('profile_image')) {
+            $validated['profile_image'] = $request->file('profile_image')->store('profile_images', 'public');
+        }
+
+        $user = $request->user();
+        $user->fill($validated);
+        $user->save();
+
+        return response()->json([
+            'message' => 'Profile updated successfully',
+            'user' => $user->fresh(),
+        ]);
     }
 }

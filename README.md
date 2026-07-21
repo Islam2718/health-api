@@ -133,6 +133,14 @@ The current authentication flow uses Laravel Sanctum.
 }
 ```
 
+### Auth endpoint notes
+
+- Registration is handled in the auth controller at [app/Http/Controllers/Api/Auth/AuthController.php](app/Http/Controllers/Api/Auth/AuthController.php).
+- A new user can register with name, email or phone, password, and password confirmation.
+- At least one of email or phone must be provided.
+- Profile fields such as gender, date_of_birth, profile_image, address, blood_group, and marital_status are not part of initial registration and should be updated later after login.
+- The user update API is available at /api/users/{id} and supports the profile fields above.
+
 ## Coding Guidelines for Future Developers
 
 ### Feature development workflow

@@ -10,8 +10,7 @@ class UserRepositoryImpl implements UserRepository
 {
     public function findByIdentifier(string $identifier)
     {
-        return User::where('email', $identifier)
-            ->orWhere('username', $identifier)
+        return User::where('email', $identifier)            
             ->orWhere('phone', $identifier)
             ->first();
     }

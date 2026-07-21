@@ -16,8 +16,7 @@ return new class extends Migration
             // Basic Info
             $table->string('name');
             $table->string('email')->unique()->nullable();
-            $table->string('phone')->unique()->nullable();
-            $table->string('username')->unique()->nullable();
+            $table->string('phone')->unique()->nullable();            
             $table->string('password');
             $table->string('type')->default('USER');
             // Custom Fields (IMPORTANT)
