@@ -70,7 +70,7 @@ return [
     ],
 
     'ui' => [
-        'title' => null,
+        'title' => 'IbnoHealth API',
     ],
 
     'renderer' => 'elements',
@@ -95,7 +95,7 @@ return [
         'scalar' => [
             'view' => 'scramble::scalar',
             'cdn' => 'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
-            'theme' => 'laravel',
+            'theme' => 'HealthAPI',
             'proxyUrl' => 'https://proxy.scalar.com',
             'darkMode' => false,
             'showDeveloperTools' => 'never',
