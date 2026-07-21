@@ -1,4 +1,4 @@
-name: Deploy to Namecheap via SSH
+name: 🚀 Deploy to Namecheap via SSH
 
 on:
   push:
@@ -10,31 +10,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
+      - name: 📥 Checkout code
+        uses: actions/checkout@v3
 
-      - name: Setup PHP
+      - name: 🐘 Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
           extensions: mbstring, xml, curl, zip, bcmath
           coverage: none
-          ini-values: memory_limit=-1
 
-      - name: Install Composer dependencies
-        env:
-          COMPOSER_MEMORY_LIMIT: -1
+      - name: 📦 Install Composer dependencies
         run: |
-          composer clear-cache
-          composer install --no-interaction --prefer-dist --no-scripts
+          composer install --no-dev --optimize-autoloader --no-interaction
 
-      - name: Run tests before deploy
+      - name: 🧪 Run tests before deploy
         run: |
           cp .env.example .env
           php artisan key:generate
           php artisan test
 
-      - name: Deploy files via rsync
+      - name: 🚀 Deploy via rsync
         uses: burnett01/rsync-deployments@v9
         with:
           switches: -avz --delete --exclude=".env" --exclude=".git" --exclude="storage/**" --exclude="bootstrap/cache/**"
@@ -44,9 +40,8 @@ jobs:
           remote_user: ${{ secrets.SSH_USER }}
           remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
           remote_port: ${{ secrets.SSH_PORT }}
-          debug: true
 
-      - name: Run Laravel Commands on Server
+      - name: ⚙️ Run Laravel commands on server
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -56,7 +51,7 @@ jobs:
           script: |
             cd ${{ secrets.APP_PATH }}
             php artisan migrate --force
+            php artisan optimize:clear
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
-            php artisan optimize:clear

@@ -124,6 +124,41 @@ http://127.0.0.1:8000/docs/api
 
 The current authentication flow uses Laravel Sanctum.
 
+## Doctor, Education, and Professional Experience APIs
+
+The API now supports authenticated profile modules for doctors:
+
+### Doctor endpoints
+
+- GET /api/doctors
+- POST /api/doctors
+- GET /api/doctors/{id}
+- PUT /api/doctors/{id}
+- DELETE /api/doctors/{id}
+
+### Education endpoints
+
+- GET /api/educations
+- POST /api/educations
+- GET /api/educations/{id}
+- PUT /api/educations/{id}
+- DELETE /api/educations/{id}
+
+### Professional experience endpoints
+
+- GET /api/professional-experiences
+- POST /api/professional-experiences
+- GET /api/professional-experiences/{id}
+- PUT /api/professional-experiences/{id}
+- DELETE /api/professional-experiences/{id}
+
+### Current implementation notes
+
+- All profile-related modules are protected by Sanctum authentication.
+- Each module stores records linked to the authenticated user via user_id.
+- Controllers are currently handling request validation directly; future work can move this into dedicated Form Request classes for cleaner separation.
+- New modules should follow the existing Laravel convention of routes, controllers, models, and tests in the same domain structure.
+
 ### Expected login payload example
 
 ```json
@@ -148,9 +183,10 @@ The current authentication flow uses Laravel Sanctum.
 1. Create a feature branch from the main branch
 2. Add or update the relevant Use Case, DTO, repository interface, and implementation
 3. Keep controllers focused on HTTP concerns only
-4. Add validation with Form Requests
+4. Add validation with Form Requests when the feature grows beyond a simple CRUD flow
 5. Write tests before finalizing the feature
 6. Run the relevant test suite before pushing changes
+7. Document new endpoints and module behavior in this README
 
 ### Naming and structure
 
