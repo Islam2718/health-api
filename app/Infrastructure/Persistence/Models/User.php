@@ -59,4 +59,14 @@ class User extends Authenticatable
             $this->attributes['password'] = bcrypt($value);
         }
     }
+
+    public function chambers()
+    {
+        return $this->hasMany(Chamber::class);
+    }
+
+    public function doctorSchedules()
+    {
+        return $this->hasMany(DoctorSchedule::class);
+    }
 }
