@@ -29,6 +29,10 @@ class DoctorController extends Controller
         $data['user_id'] = $request->user()->id;
 
         $doctor = Doctor::create($data);
+        // user type will USER,DOCTOR both with comma separated values, so we need to update the user type to DOCTOR
+        $user = $request->user();
+        $user->type = 'USER,DOCTOR';
+        $user->save();
 
         return response()->json([
             'data' => $doctor,
