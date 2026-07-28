@@ -20,8 +20,8 @@ class DoctorScheduleController extends Controller
         $data = $request->validate([
             'chamber_id' => ['required', 'exists:chambers,id'],
             'date' => ['required', 'date'],
-            'start_time' => ['required', 'date_format:H:i:s'],
-            'end_time' => ['required', 'date_format:H:i:s'],
+            'start_time' => ['nullable', 'date_format:H:i:s'],
+            'end_time' => ['nullable', 'date_format:H:i:s'],
             'slot_duration' => ['nullable', 'integer'],
             'max_patients' => ['nullable', 'integer'],
             'is_active' => ['nullable', 'boolean'],
