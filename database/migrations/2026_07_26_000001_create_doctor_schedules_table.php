@@ -20,6 +20,8 @@ return new class extends Migration
             $table->time('end_time');
             $table->integer('slot_duration')->nullable();
             $table->integer('max_patients')->nullable();
+            // consultation_fee 
+            $table->decimal('consultation_fee', 10, 2)->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('hospital_id')->nullable()->constrained('hospitals')->nullOnDelete();
             $table->foreignId('chamber_id')->nullable()->constrained('chambers')->cascadeOnDelete();
             $table->foreignId('doctor_schedule_id')->nullable()->constrained('doctor_schedules')->nullOnDelete();
-            $table->decimal('fee', 10, 2)->nullable();
+            $table->decimal('consultation_fee', 10, 2)->nullable();
             $table->decimal('discount', 10, 2)->nullable();
             $table->enum('appointment_type', ['HOSPITAL','CHAMBER','ONLINE'])->default('CHAMBER');
             // status 

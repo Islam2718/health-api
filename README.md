@@ -124,9 +124,9 @@ http://127.0.0.1:8000/docs/api
 
 The current authentication flow uses Laravel Sanctum.
 
-## Doctor, Education, and Professional Experience APIs
+## Doctor, Education, Hospital, and Appointment APIs
 
-The API now supports authenticated profile modules for doctors:
+The API now supports authenticated profile modules for doctors, hospitals, and appointment scheduling:
 
 ### Doctor endpoints
 
@@ -152,11 +152,38 @@ The API now supports authenticated profile modules for doctors:
 - PUT /api/professional-experiences/{id}
 - DELETE /api/professional-experiences/{id}
 
+### Doctor schedule endpoints
+
+- GET /api/doctor-schedules
+- POST /api/doctor-schedules
+- GET /api/doctor-schedules/{id}
+- PUT /api/doctor-schedules/{id}
+- DELETE /api/doctor-schedules/{id}
+
+### Hospital endpoints
+
+- GET /api/hospitals
+- POST /api/hospitals
+- GET /api/hospitals/{id}
+- PUT /api/hospitals/{id}
+- DELETE /api/hospitals/{id}
+
+### Appointment endpoints
+
+- GET /api/appointments
+- POST /api/appointments
+- GET /api/appointments/{id}
+- PUT /api/appointments/{id}
+- DELETE /api/appointments/{id}
+
 ### Current implementation notes
 
-- All profile-related modules are protected by Sanctum authentication.
-- Each module stores records linked to the authenticated user via user_id.
-- Controllers are currently handling request validation directly; future work can move this into dedicated Form Request classes for cleaner separation.
+- All profile-related and scheduling modules are protected by Sanctum authentication.
+- Hospitals are associated with the authenticated user and can be managed from the hospital resource.
+- Doctor schedules include `consultation_fee`, `max_patients`, and optional chamber association.
+- Appointments link a patient, doctor, optional hospital or chamber, and optional doctor schedule.
+- The appointment workflow supports consultation fee, discount, appointment type, status, date, and optional time.
+- Controllers use the current request validation pattern; future improvements may move validation into dedicated Form Requests for reusability.
 - New modules should follow the existing Laravel convention of routes, controllers, models, and tests in the same domain structure.
 
 ### Expected login payload example

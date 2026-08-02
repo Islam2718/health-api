@@ -66,12 +66,14 @@ class ChamberAndScheduleApiTest extends TestCase
                 'end_time' => '13:00:00',
                 'slot_duration' => 15,
                 'max_patients' => 20,
+                'consultation_fee' => '1500.00',
                 'is_active' => true,
             ]);
 
         $response->assertCreated()
             ->assertJsonPath('data.chamber_id', $chamber->id)
-            ->assertJsonPath('data.user_id', $user->id);
+            ->assertJsonPath('data.user_id', $user->id)
+            ->assertJsonPath('data.consultation_fee', '1500.00');
 
         $this->assertDatabaseHas('doctor_schedules', [
             'user_id' => $user->id,
@@ -79,6 +81,7 @@ class ChamberAndScheduleApiTest extends TestCase
             'date' => '2026-07-27',
             'slot_duration' => 15,
             'max_patients' => 20,
+            'consultation_fee' => '1500.00',
         ]);
     }
 }

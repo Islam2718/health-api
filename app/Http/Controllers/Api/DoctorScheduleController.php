@@ -24,6 +24,7 @@ class DoctorScheduleController extends Controller
             'end_time' => ['nullable', 'date_format:H:i:s'],
             'slot_duration' => ['nullable', 'integer'],
             'max_patients' => ['nullable', 'integer'],
+            'consultation_fee' => ['nullable', 'numeric'],
             'is_active' => ['nullable', 'boolean'],
         ]);
 
@@ -52,6 +53,7 @@ class DoctorScheduleController extends Controller
             'end_time' => ['nullable', 'date_format:H:i:s'],
             'slot_duration' => ['nullable', 'integer'],
             'max_patients' => ['nullable', 'integer'],
+            'consultation_fee' => ['nullable', 'numeric'],
             'is_active' => ['nullable', 'boolean'],
         ]));
 

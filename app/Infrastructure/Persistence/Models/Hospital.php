@@ -4,19 +4,21 @@ namespace App\Infrastructure\Persistence\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Chamber extends Model
+class Hospital extends Model
 {
-    protected $table = 'chambers';
+    protected $table = 'hospitals';
 
     protected $fillable = [
         'user_id',
         'name',
+        'phone',
+        'email',
+        'license_number',
+        'logo',
         'address',
         'city',
-        'area',
         'latitude',
         'longitude',
-        'consultation_fee',
         'is_active',
     ];
 
@@ -29,14 +31,8 @@ class Chamber extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function doctorSchedules()
-    {
-        return $this->hasMany(DoctorSchedule::class);
-    }
-
     public function appointments()
     {
         return $this->hasMany(Appointment::class);
     }
 }
-

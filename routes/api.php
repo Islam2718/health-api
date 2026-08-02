@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\ChamberController;
 use App\Http\Controllers\Api\DoctorController;
 use App\Http\Controllers\Api\DoctorScheduleController;
 use App\Http\Controllers\Api\EducationController;
+use App\Http\Controllers\Api\HospitalController;
+use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\ProfessionalExperienceController;
 use App\Http\Controllers\Api\UserController;
 
@@ -28,4 +30,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('professional-experiences', ProfessionalExperienceController::class);
     Route::apiResource('chambers', ChamberController::class);
     Route::apiResource('doctor-schedules', DoctorScheduleController::class);
+    Route::apiResource('hospitals', HospitalController::class);
+    Route::apiResource('appointments', AppointmentController::class);
 });
