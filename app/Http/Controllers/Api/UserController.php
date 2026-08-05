@@ -4,12 +4,15 @@ use App\Http\Controllers\Controller;
 
 use App\Application\UseCases\User\{
     CreateUserUseCase,
+    DeleteUserUseCase,
+    FindOrCreateUserByPhoneUseCase,
+    FindUserByPhoneUseCase,
     GetAllUsersUseCase,
     GetUserUseCase,
-    UpdateUserUseCase,
-    DeleteUserUseCase
+    UpdateUserUseCase
 };
 use App\Http\Requests\CreateUserRequest;
+use App\Http\Requests\FindOrCreateUserByPhoneRequest;
 use App\Http\Requests\UpdateUserRequest;
 
 class UserController extends Controller
@@ -30,6 +33,23 @@ class UserController extends Controller
     public function show($id, GetUserUseCase $useCase)
     {
         return response()->json($useCase->execute($id));
+    }
+
+    public function findByPhone($phone, FindUserByPhoneUseCase $useCase)
+    {
+        $user = $useCase->execute($phone);
+
+        if ($user) {
+            return response()->json(['data' => $user]);
+        }
+
+        return response()->json(['message' => 'User not found'], 404);
+    }
+
+    public function findOrCreateByPhone(FindOrCreateUserByPhoneRequest $request, FindOrCreateUserByPhoneUseCase $useCase)
+    {
+        $user = $useCase->execute($request->route('phone'), $request->validated());
+        return response()->json(['data' => $user]);
     }
 
     public function update($id, UpdateUserRequest $request, UpdateUserUseCase $useCase)

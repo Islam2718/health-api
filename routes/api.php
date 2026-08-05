@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\DoctorScheduleController;
 use App\Http\Controllers\Api\EducationController;
 use App\Http\Controllers\Api\HospitalController;
 use App\Http\Controllers\Api\AppointmentController;
+use App\Http\Controllers\Api\AppointmentPrescriptionController;
 use App\Http\Controllers\Api\ProfessionalExperienceController;
 use App\Http\Controllers\Api\UserController;
 
@@ -31,5 +32,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('chambers', ChamberController::class);
     Route::apiResource('doctor-schedules', DoctorScheduleController::class);
     Route::apiResource('hospitals', HospitalController::class);
+    Route::get('appointments/upcoming', [AppointmentController::class, 'upcoming']);
     Route::apiResource('appointments', AppointmentController::class);
+    Route::apiResource('appointment-prescriptions', AppointmentPrescriptionController::class);
+    Route::get('users/phone/{phone}', [UserController::class, 'findByPhone']);
+    Route::post('users/phone/{phone}', [UserController::class, 'findOrCreateByPhone']);
 });

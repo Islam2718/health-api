@@ -160,6 +160,16 @@ The API now supports authenticated profile modules for doctors, hospitals, and a
 - PUT /api/doctor-schedules/{id}
 - DELETE /api/doctor-schedules/{id}
 
+### User endpoints
+
+- GET /api/users
+- POST /api/users
+- GET /api/users/{id}
+- PUT /api/users/{id}
+- DELETE /api/users/{id}
+- GET /api/users/phone/{phone}
+- POST /api/users/phone/{phone}
+
 ### Hospital endpoints
 
 - GET /api/hospitals
@@ -168,6 +178,19 @@ The API now supports authenticated profile modules for doctors, hospitals, and a
 - PUT /api/hospitals/{id}
 - DELETE /api/hospitals/{id}
 
+### User phone lookup endpoints
+
+- GET /api/users/phone/{phone}
+- POST /api/users/phone/{phone}
+
+### User phone lookup notes
+
+- `GET /api/users/phone/{phone}` checks whether a user exists with that phone number.
+- If the user exists, it returns their details.
+- `POST /api/users/phone/{phone}` creates a new patient user when the phone number is not already registered.
+- This supports doctor workflows where a doctor can enter a patient phone and continue to the next appointment step.
+- These lookup routes are separate from standard `/api/users/{id}` to avoid route conflicts and clearly separate lookup vs. create behavior.
+
 ### Appointment endpoints
 
 - GET /api/appointments
@@ -175,6 +198,23 @@ The API now supports authenticated profile modules for doctors, hospitals, and a
 - GET /api/appointments/{id}
 - PUT /api/appointments/{id}
 - DELETE /api/appointments/{id}
+- GET /api/appointments/upcoming
+
+### Prescription endpoints
+
+- GET /api/appointment-prescriptions
+- POST /api/appointment-prescriptions
+- GET /api/appointment-prescriptions/{id}
+- PUT /api/appointment-prescriptions/{id}
+- DELETE /api/appointment-prescriptions/{id}
+
+### Prescription endpoint notes
+
+- Prescriptions are created by the doctor after appointment consultation.
+- Each prescription links `doctor_user_id`, `patient_user_id`, `appointment_id`, `schedule_id`, `chamber_id`, and `appointment_type`.
+- Doctors record vitals and symptoms, including blood pressure, smoking status, sugar level, and general symptoms.
+- The `medicines` field is stored as JSON and supports medicine schedule strings like `1+0+1`, `1+0+0`, or `0+1+0`.
+- The prescription also captures `diagnosis`, `prescription_date`, and optional `notes`.
 
 ### Current implementation notes
 
