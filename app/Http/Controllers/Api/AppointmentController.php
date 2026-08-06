@@ -57,7 +57,7 @@ class AppointmentController extends Controller
                 ->orWhere('user_doctor_id', $request->user()->id);
         })->where('id', $id)->firstOrFail();
 
-        $appointment->update($request->validate([
+        $data = $request->validate([
             'user_doctor_id' => ['sometimes', 'required', 'exists:users,id'],
             'hospital_id' => ['sometimes', 'nullable', 'exists:hospitals,id'],
             'chamber_id' => ['sometimes', 'nullable', 'exists:chambers,id'],
@@ -68,7 +68,9 @@ class AppointmentController extends Controller
             'status' => ['sometimes', 'in:PENDING,APPROVED,REJECTED,CANCELLED,COMPLETED,EXPIRED'],
             'appointment_date' => ['sometimes', 'date'],
             'appointment_time' => ['sometimes', 'nullable', 'date_format:H:i:s'],
-        ]));
+        ]);
+
+        $appointment->update($data);
 
         return response()->json(['data' => $appointment]);
     }

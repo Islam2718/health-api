@@ -222,7 +222,7 @@ The API now supports authenticated profile modules for doctors, hospitals, and a
 - Hospitals are associated with the authenticated user and can be managed from the hospital resource.
 - Doctor schedules include `consultation_fee`, `max_patients`, and optional chamber association.
 - Appointments link a patient, doctor, optional hospital or chamber, and optional doctor schedule.
-- The appointment workflow supports consultation fee, discount, appointment type, status, date, and optional time.
+- The appointment workflow supports consultation fee (`consultation_fee`), discount, appointment type, status, date, and optional time.
 - Controllers use the current request validation pattern; future improvements may move validation into dedicated Form Requests for reusability.
 - New modules should follow the existing Laravel convention of routes, controllers, models, and tests in the same domain structure.
 

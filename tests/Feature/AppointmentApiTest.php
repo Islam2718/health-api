@@ -82,6 +82,32 @@ class AppointmentApiTest extends TestCase
             'user_patient_id' => $patient->id,
             'user_doctor_id' => $doctor->id,
             'appointment_type' => 'CHAMBER',
+            'consultation_fee' => '1000.00',
+        ]);
+    }
+
+    public function test_authenticated_user_can_create_appointment_with_consultation_fee(): void
+    {
+        $patient = User::factory()->create();
+        $doctor = User::factory()->create();
+
+        $token = $patient->createToken('test-token')->plainTextToken;
+
+        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->postJson('/api/appointments', [
+                'user_doctor_id' => $doctor->id,
+                'appointment_date' => now()->addDays(2)->toDateString(),
+                'consultation_fee' => '1200.00',
+            ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('data.consultation_fee', '1200.00');
+
+        $appointment = Appointment::first();
+
+        $this->assertDatabaseHas('appointments', [
+            'id' => $appointment->id,
+            'consultation_fee' => '1200.00',
         ]);
     }
 
