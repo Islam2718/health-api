@@ -200,6 +200,27 @@ The API now supports authenticated profile modules for doctors, hospitals, and a
 - DELETE /api/appointments/{id}
 - GET /api/appointments/upcoming
 
+### Public doctor listing endpoint
+
+- GET /api/doctors/public
+- GET /api/doctors/public/{id}
+
+Query parameters:
+- `designation` => filter doctor title
+- `department` => filter doctor specialization
+- `address` => search doctor user address
+- `search` => search across doctor name, title, specialization, and address
+- `random` => `true` to randomize results
+- `per_page` => pagination page size
+
+This endpoint is public and does not require a bearer token.
+
+### Public doctor details endpoint
+
+- GET /api/doctors/public/{id}
+
+This returns the selected doctor profile along with related chambers and available schedules in a nested structure. It is intended for patient-facing doctor detail pages.
+
 ### Prescription endpoints
 
 - GET /api/appointment-prescriptions
@@ -225,6 +246,29 @@ The API now supports authenticated profile modules for doctors, hospitals, and a
 - The appointment workflow supports consultation fee (`consultation_fee`), discount, appointment type, status, date, and optional time.
 - Controllers use the current request validation pattern; future improvements may move validation into dedicated Form Requests for reusability.
 - New modules should follow the existing Laravel convention of routes, controllers, models, and tests in the same domain structure.
+
+## Developer Guidelines for Public Doctor Listing
+
+- The public doctor listing endpoint is `GET /api/doctors/public`.
+- This endpoint is intentionally public and does not require a bearer token.
+- It is implemented in `app/Http/Controllers/Api/DoctorController.php` as `publicIndex`.
+- The endpoint supports optional filters:
+  - `designation` for doctor title
+  - `department` for doctor specialization
+  - `address` for doctor user address
+  - `search` for doctor name, title, specialization, or address
+  - `random=true` to randomize results
+  - `per_page` for pagination size
+- The response includes `data` and pagination metadata for frontend listing.
+- Use this endpoint for homepage doctor lists and the doctor directory page.
+- If new homepage fields are needed later, extend the controller query and include them in the payload carefully.
+
+### Recommended approach for future changes
+
+- Keep the public listing endpoint separate from authenticated doctor profile routes.
+- Add new filters in the controller using query validation and `where` clauses.
+- Keep the controller action focused on request handling and query building.
+- Avoid adding authentication requirements to this endpoint unless the feature explicitly needs it.
 
 ### Expected login payload example
 

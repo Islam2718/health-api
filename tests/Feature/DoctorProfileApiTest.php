@@ -2,6 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Infrastructure\Persistence\Models\Chamber;
+use App\Infrastructure\Persistence\Models\Doctor;
+use App\Infrastructure\Persistence\Models\DoctorSchedule;
 use App\Infrastructure\Persistence\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -32,6 +35,36 @@ class DoctorProfileApiTest extends TestCase
             'title' => 'Dr.',
             'specialization' => 'Cardiology',
         ]);
+    }
+
+    public function test_can_fetch_public_doctor_listing_without_authentication(): void
+    {
+        $doctorUser = User::factory()->create(['name' => 'Dr. Shahriar', 'address' => 'Banani, Dhaka']);
+        $doctor = Doctor::create([
+            'user_id' => $doctorUser->id,
+            'title' => 'Dr.',
+            'specialization' => 'Cardiology',
+            'license_number' => 'LIC-1002',
+            'bio' => 'Heart specialist',
+            'is_active' => true,
+        ]);
+
+        $otherUser = User::factory()->create(['name' => 'Dr. Rina', 'address' => 'Gulshan, Dhaka']);
+        Doctor::create([
+            'user_id' => $otherUser->id,
+            'title' => 'Dr.',
+            'specialization' => 'Neurology',
+            'license_number' => 'LIC-1003',
+            'bio' => 'Brain specialist',
+            'is_active' => true,
+        ]);
+
+        $response = $this->getJson('/api/doctors/public?designation=Dr.&department=Cardiology&address=Banani');
+
+        $response->assertOk();
+        $response->assertJsonCount(1, 'data');
+        $response->assertJsonPath('data.0.specialization', 'Cardiology');
+        $response->assertJsonPath('data.0.user.name', 'Dr. Shahriar');
     }
 
     public function test_authenticated_user_can_create_and_fetch_education_record(): void

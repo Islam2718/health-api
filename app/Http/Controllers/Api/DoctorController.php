@@ -17,6 +17,74 @@ class DoctorController extends Controller
         ]);
     }
 
+    public function publicShow(Request $request, $id)
+    {
+        $doctor = Doctor::with(['user', 'chambers.doctorSchedules' => function ($query) {
+            $query->where('is_active', true)
+                ->orderBy('date')
+                ->orderBy('start_time');
+        }])->where('id', $id)->firstOrFail();
+
+        return response()->json(['data' => $doctor]);
+    }
+
+    public function publicIndex(Request $request)
+    {
+        $data = $request->validate([
+            'designation' => ['sometimes', 'string', 'max:255'],
+            'department' => ['sometimes', 'string', 'max:255'],
+            'address' => ['sometimes', 'string', 'max:255'],
+            'search' => ['sometimes', 'string', 'max:255'],
+            'random' => ['sometimes', 'boolean'],
+            'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
+        ]);
+
+        $query = Doctor::with('user')->where('is_active', true);
+
+        if (!empty($data['designation'])) {
+            $query->where('title', 'like', '%' . $data['designation'] . '%');
+        }
+
+        if (!empty($data['department'])) {
+            $query->where('specialization', 'like', '%' . $data['department'] . '%');
+        }
+
+        if (!empty($data['address'])) {
+            $query->whereHas('user', function ($query) use ($data) {
+                $query->where('address', 'like', '%' . $data['address'] . '%');
+            });
+        }
+
+        if (!empty($data['search'])) {
+            $query->where(function ($query) use ($data) {
+                $query->where('title', 'like', '%' . $data['search'] . '%')
+                    ->orWhere('specialization', 'like', '%' . $data['search'] . '%')
+                    ->orWhereHas('user', function ($query) use ($data) {
+                        $query->where('name', 'like', '%' . $data['search'] . '%')
+                            ->orWhere('address', 'like', '%' . $data['search'] . '%');
+                    });
+            });
+        }
+
+        if ($request->boolean('random')) {
+            $query->inRandomOrder();
+        } else {
+            $query->latest();
+        }
+
+        $doctors = $query->paginate($data['per_page'] ?? 15)->appends($request->query());
+
+        return response()->json([
+            'data' => $doctors->items(),
+            'meta' => [
+                'current_page' => $doctors->currentPage(),
+                'per_page' => $doctors->perPage(),
+                'total' => $doctors->total(),
+                'last_page' => $doctors->lastPage(),
+            ],
+        ]);
+    }
+
     public function store(Request $request)
     {
         $data = $request->validate([

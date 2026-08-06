@@ -24,6 +24,9 @@ Route::prefix('auth')->group(function () {
     Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword']);
 });
 
+Route::get('doctors/public', [DoctorController::class, 'publicIndex']);
+Route::get('doctors/public/{id}', [DoctorController::class, 'publicShow']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('users', UserController::class);
     Route::apiResource('doctors', DoctorController::class);
