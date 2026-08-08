@@ -8,9 +8,51 @@ use Illuminate\Http\Request;
 
 class AppointmentController extends Controller
 {
+    /**
+     * List appointments for the authenticated user.
+     *
+     * @response 200 {
+     *   "data": [
+     *     {
+     *       "id": 1,
+     *       "user_patient_id": 2,
+     *       "user_doctor_id": 3,
+     *       "hospital_id": 4,
+     *       "chamber_id": 5,
+     *       "doctor_schedule_id": null,
+     *       "consultation_fee": "500.00",
+     *       "discount": "0.00",
+     *       "appointment_type": "HOSPITAL",
+     *       "status": "PENDING",
+     *       "appointment_date": "2026-08-08",
+     *       "appointment_time": "10:00:00",
+     *       "created_at": "2026-08-08T08:00:00.000000Z",
+     *       "updated_at": "2026-08-08T08:00:00.000000Z",
+     *       "user_patient": {
+     *         "id": 2,
+     *         "name": "Patient User",
+     *         "email": "patient@example.com"
+     *       },
+     *       "user_doctor": {
+     *         "id": 3,
+     *         "name": "Doctor User",
+     *         "email": "doctor@example.com"
+     *       },
+     *       "hospital": {
+     *         "id": 4,
+     *         "name": "City Hospital"
+     *       },
+     *       "chamber": {
+     *         "id": 5,
+     *         "name": "Room 101"
+     *       }
+     *     }
+     *   ]
+     * }
+     */
     public function index(Request $request)
     {
-        $appointments = Appointment::with(['userPatient', 'userDoctor', 'hospital', 'chamber'])
+        $appointments = Appointment::with(['user_patient', 'user_doctor', 'hospital', 'chamber'])
             ->where(function ($query) use ($request) {
                 $query->where('user_patient_id', $request->user()->id)
                     ->orWhere('user_doctor_id', $request->user()->id);
@@ -19,6 +61,46 @@ class AppointmentController extends Controller
         return response()->json(['data' => $appointments]);
     }
 
+    /**
+     * Create a new appointment for the authenticated user.
+     *
+     * @response 201 {
+     *   "data": {
+     *     "id": 1,
+     *     "user_patient_id": 2,
+     *     "user_doctor_id": 3,
+     *     "hospital_id": 4,
+     *     "chamber_id": 5,
+     *     "doctor_schedule_id": null,
+     *     "consultation_fee": "500.00",
+     *     "discount": "0.00",
+     *     "appointment_type": "HOSPITAL",
+     *     "status": "PENDING",
+     *     "appointment_date": "2026-08-08",
+     *     "appointment_time": "10:00:00",
+     *     "created_at": "2026-08-08T08:00:00.000000Z",
+     *     "updated_at": "2026-08-08T08:00:00.000000Z",
+     *     "user_patient": {
+     *       "id": 2,
+     *       "name": "Patient User",
+     *       "email": "patient@example.com"
+     *     },
+     *     "user_doctor": {
+     *       "id": 3,
+     *       "name": "Doctor User",
+     *       "email": "doctor@example.com"
+     *     },
+     *     "hospital": {
+     *       "id": 4,
+     *       "name": "City Hospital"
+     *     },
+     *     "chamber": {
+     *       "id": 5,
+     *       "name": "Room 101"
+     *     }
+     *   }
+     * }
+     */
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -42,6 +124,46 @@ class AppointmentController extends Controller
         return response()->json(['data' => $appointment], 201);
     }
 
+    /**
+     * Get a single appointment for the authenticated user.
+     *
+     * @response 200 {
+     *   "data": {
+     *     "id": 1,
+     *     "user_patient_id": 2,
+     *     "user_doctor_id": 3,
+     *     "hospital_id": 4,
+     *     "chamber_id": 5,
+     *     "doctor_schedule_id": null,
+     *     "consultation_fee": "500.00",
+     *     "discount": "0.00",
+     *     "appointment_type": "HOSPITAL",
+     *     "status": "PENDING",
+     *     "appointment_date": "2026-08-08",
+     *     "appointment_time": "10:00:00",
+     *     "created_at": "2026-08-08T08:00:00.000000Z",
+     *     "updated_at": "2026-08-08T08:00:00.000000Z",
+     *     "user_patient": {
+     *       "id": 2,
+     *       "name": "Patient User",
+     *       "email": "patient@example.com"
+     *     },
+     *     "user_doctor": {
+     *       "id": 3,
+     *       "name": "Doctor User",
+     *       "email": "doctor@example.com"
+     *     },
+     *     "hospital": {
+     *       "id": 4,
+     *       "name": "City Hospital"
+     *     },
+     *     "chamber": {
+     *       "id": 5,
+     *       "name": "Room 101"
+     *     }
+     *   }
+     * }
+     */
     public function show(Request $request, $id)
     {
         $appointment = Appointment::with(['userPatient', 'userDoctor', 'hospital', 'chamber'])
@@ -53,6 +175,46 @@ class AppointmentController extends Controller
         return response()->json(['data' => $appointment]);
     }
 
+    /**
+     * Update an appointment for the authenticated user.
+     *
+     * @response 200 {
+     *   "data": {
+     *     "id": 1,
+     *     "user_patient_id": 2,
+     *     "user_doctor_id": 3,
+     *     "hospital_id": 4,
+     *     "chamber_id": 5,
+     *     "doctor_schedule_id": null,
+     *     "consultation_fee": "500.00",
+     *     "discount": "0.00",
+     *     "appointment_type": "HOSPITAL",
+     *     "status": "APPROVED",
+     *     "appointment_date": "2026-08-08",
+     *     "appointment_time": "10:00:00",
+     *     "created_at": "2026-08-08T08:00:00.000000Z",
+     *     "updated_at": "2026-08-08T08:30:00.000000Z",
+     *     "user_patient": {
+     *       "id": 2,
+     *       "name": "Patient User",
+     *       "email": "patient@example.com"
+     *     },
+     *     "user_doctor": {
+     *       "id": 3,
+     *       "name": "Doctor User",
+     *       "email": "doctor@example.com"
+     *     },
+     *     "hospital": {
+     *       "id": 4,
+     *       "name": "City Hospital"
+     *     },
+     *     "chamber": {
+     *       "id": 5,
+     *       "name": "Room 101"
+     *     }
+     *   }
+     * }
+     */
     public function update(Request $request, $id)
     {
         $appointment = Appointment::where(function ($query) use ($request) {
@@ -91,6 +253,48 @@ class AppointmentController extends Controller
         return response()->json(['message' => 'Appointment deleted']);
     }
 
+    /**
+     * Get upcoming appointments for the authenticated user.
+     *
+     * @response 200 {
+     *   "data": [
+     *     {
+     *       "id": 1,
+     *       "user_patient_id": 2,
+     *       "user_doctor_id": 3,
+     *       "hospital_id": 4,
+     *       "chamber_id": 5,
+     *       "doctor_schedule_id": null,
+     *       "consultation_fee": "500.00",
+     *       "discount": "0.00",
+     *       "appointment_type": "HOSPITAL",
+     *       "status": "PENDING",
+     *       "appointment_date": "2026-08-09",
+     *       "appointment_time": "11:00:00",
+     *       "created_at": "2026-08-08T08:00:00.000000Z",
+     *       "updated_at": "2026-08-08T08:00:00.000000Z",
+     *       "user_patient": {
+     *         "id": 2,
+     *         "name": "Patient User",
+     *         "email": "patient@example.com"
+     *       },
+     *       "user_doctor": {
+     *         "id": 3,
+     *         "name": "Doctor User",
+     *         "email": "doctor@example.com"
+     *       },
+     *       "hospital": {
+     *         "id": 4,
+     *         "name": "City Hospital"
+     *       },
+     *       "chamber": {
+     *         "id": 5,
+     *         "name": "Room 101"
+     *       }
+     *     }
+     *   ]
+     * }
+     */
     public function upcoming(Request $request)
     {
         $today = now()->toDateString();
