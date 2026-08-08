@@ -53,5 +53,8 @@ class DatabaseSeeder extends Seeder
                 'updated_at' => now(),
             ]
         ]);
+
+        $this->call(MedicineCompanySeeder::class);
+        $this->call(MedicineSeeder::class);
     }
 }

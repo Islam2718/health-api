@@ -10,6 +10,8 @@ use App\Http\Controllers\Api\EducationController;
 use App\Http\Controllers\Api\HospitalController;
 use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\AppointmentPrescriptionController;
+use App\Http\Controllers\Api\MedicineCompanyController;
+use App\Http\Controllers\Api\MedicineController;
 use App\Http\Controllers\Api\ProfessionalExperienceController;
 use App\Http\Controllers\Api\UserController;
 
@@ -26,6 +28,10 @@ Route::prefix('auth')->group(function () {
 
 Route::get('doctors/public', [DoctorController::class, 'publicIndex']);
 Route::get('doctors/public/{id}', [DoctorController::class, 'publicShow']);
+Route::get('medicine-companies/public', [MedicineCompanyController::class, 'publicIndex']);
+Route::get('medicine-companies/public/{id}', [MedicineCompanyController::class, 'publicShow']);
+Route::get('medicines/public', [MedicineController::class, 'publicIndex']);
+Route::get('medicines/public/{id}', [MedicineController::class, 'publicShow']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('users', UserController::class);
@@ -35,6 +41,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('chambers', ChamberController::class);
     Route::apiResource('doctor-schedules', DoctorScheduleController::class);
     Route::apiResource('hospitals', HospitalController::class);
+    Route::apiResource('medicine-companies', MedicineCompanyController::class);
+    Route::apiResource('medicines', MedicineController::class);
     Route::get('appointments/upcoming', [AppointmentController::class, 'upcoming']);
     Route::apiResource('appointments', AppointmentController::class);
     Route::apiResource('appointment-prescriptions', AppointmentPrescriptionController::class);

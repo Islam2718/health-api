@@ -56,6 +56,36 @@ All contributors should follow these rules:
 - Prefer dependency injection over hard-coded dependencies
 - Write tests for new features and bug fixes
 
+## Next-Level Developer Guidelines
+
+Use this project structure when adding new modules:
+
+- app/Domain/Entities for domain models
+- app/Domain/Interfaces for repository contracts
+- app/Application/DTOs for request/response objects
+- app/Application/UseCases for business workflows
+- app/Infrastructure/Persistence for repository implementations and Eloquent models
+- app/Http/Controllers/Api for HTTP controllers and response resources
+
+Best practices for new features:
+
+- Add only one responsibility per class
+- Preserve a single source of truth for business rules in Use Cases
+- Keep API validation inside Form Requests or dedicated validation classes
+- Use API Resources for consistent JSON output
+- Register interface bindings in app/Providers/AppServiceProvider.php
+- Keep routes in routes/api.php, and separate public APIs from authenticated routes
+- Add seeders using idempotent statements (`updateOrInsert` or factories)
+- Keep documentation updated alongside code changes
+- Add tests for endpoints, use cases, and persistence logic
+
+Use these commands for development workflow:
+
+- `php artisan migrate --seed` to build schema and sample data
+- `php artisan route:list` to verify route registration
+- `composer test` to run automated tests
+- `php artisan tinker` for quick database checks
+
 ## Getting Started
 
 ### 1. Clone and enter the project
