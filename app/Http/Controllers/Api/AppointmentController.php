@@ -10,10 +10,11 @@ class AppointmentController extends Controller
 {
     public function index(Request $request)
     {
-        $appointments = Appointment::where(function ($query) use ($request) {
-            $query->where('user_patient_id', $request->user()->id)
-                ->orWhere('user_doctor_id', $request->user()->id);
-        })->latest()->get();
+        $appointments = Appointment::with(['userPatient', 'userDoctor', 'hospital', 'chamber'])
+            ->where(function ($query) use ($request) {
+                $query->where('user_patient_id', $request->user()->id)
+                    ->orWhere('user_doctor_id', $request->user()->id);
+            })->latest()->get();
 
         return response()->json(['data' => $appointments]);
     }
@@ -36,16 +37,18 @@ class AppointmentController extends Controller
         $data['user_patient_id'] = $request->user()->id;
 
         $appointment = Appointment::create($data);
+        $appointment->load(['userPatient', 'userDoctor', 'hospital', 'chamber']);
 
         return response()->json(['data' => $appointment], 201);
     }
 
     public function show(Request $request, $id)
     {
-        $appointment = Appointment::where(function ($query) use ($request) {
-            $query->where('user_patient_id', $request->user()->id)
-                ->orWhere('user_doctor_id', $request->user()->id);
-        })->where('id', $id)->firstOrFail();
+        $appointment = Appointment::with(['userPatient', 'userDoctor', 'hospital', 'chamber'])
+            ->where(function ($query) use ($request) {
+                $query->where('user_patient_id', $request->user()->id)
+                    ->orWhere('user_doctor_id', $request->user()->id);
+            })->where('id', $id)->firstOrFail();
 
         return response()->json(['data' => $appointment]);
     }
@@ -71,6 +74,7 @@ class AppointmentController extends Controller
         ]);
 
         $appointment->update($data);
+        $appointment->load(['userPatient', 'userDoctor', 'hospital', 'chamber']);
 
         return response()->json(['data' => $appointment]);
     }
@@ -91,10 +95,11 @@ class AppointmentController extends Controller
     {
         $today = now()->toDateString();
 
-        $appointments = Appointment::where(function ($query) use ($request) {
-            $query->where('user_patient_id', $request->user()->id)
-                ->orWhere('user_doctor_id', $request->user()->id);
-        })
+        $appointments = Appointment::with(['userPatient', 'userDoctor', 'hospital', 'chamber'])
+            ->where(function ($query) use ($request) {
+                $query->where('user_patient_id', $request->user()->id)
+                    ->orWhere('user_doctor_id', $request->user()->id);
+            })
             ->whereDate('appointment_date', '>=', $today)
             ->whereIn('status', ['PENDING', 'APPROVED'])
             ->orderBy('appointment_date')

@@ -2,6 +2,9 @@
 
 namespace App\Infrastructure\Persistence\Models;
 
+use App\Infrastructure\Persistence\Models\Chamber;
+use App\Infrastructure\Persistence\Models\Hospital;
+use App\Infrastructure\Persistence\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 class Appointment extends Model
@@ -28,6 +31,11 @@ class Appointment extends Model
         'discount' => 'decimal:2',
     ];
 
+    protected $appends = [
+        'hospital_name',
+        'chamber_name',
+    ];
+
     public function patient()
     {
         return $this->belongsTo(User::class, 'user_patient_id');
@@ -36,6 +44,16 @@ class Appointment extends Model
     public function doctor()
     {
         return $this->belongsTo(User::class, 'user_doctor_id');
+    }
+
+    public function userPatient()
+    {
+        return $this->patient();
+    }
+
+    public function userDoctor()
+    {
+        return $this->doctor();
     }
 
     public function hospital()
@@ -51,5 +69,15 @@ class Appointment extends Model
     public function doctorSchedule()
     {
         return $this->belongsTo(DoctorSchedule::class, 'doctor_schedule_id');
+    }
+
+    public function getHospitalNameAttribute(): ?string
+    {
+        return $this->hospital?->name;
+    }
+
+    public function getChamberNameAttribute(): ?string
+    {
+        return $this->chamber?->name;
     }
 }
