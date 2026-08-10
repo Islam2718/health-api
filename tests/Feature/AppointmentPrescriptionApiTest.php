@@ -140,4 +140,44 @@ class AppointmentPrescriptionApiTest extends TestCase
         $response->assertJsonCount(1, 'data');
         $response->assertJsonPath('data.0.id', $prescription->id);
     }
+
+    public function test_authenticated_user_can_list_my_prescriptions(): void
+    {
+        $doctor = User::factory()->create();
+        $patient = User::factory()->create();
+
+        $appointment = Appointment::create([
+            'user_patient_id' => $patient->id,
+            'user_doctor_id' => $doctor->id,
+            'hospital_id' => null,
+            'chamber_id' => null,
+            'doctor_schedule_id' => null,
+            'consultation_fee' => null,
+            'discount' => null,
+            'appointment_type' => 'ONLINE',
+            'status' => 'APPROVED',
+            'appointment_date' => now()->toDateString(),
+            'appointment_time' => now()->toTimeString(),
+        ]);
+
+        $prescription = AppointmentPrescription::create([
+            'appointment_id' => $appointment->id,
+            'doctor_user_id' => $doctor->id,
+            'patient_user_id' => $patient->id,
+            'appointment_type' => 'ONLINE',
+            'medicines' => [
+                ['name' => 'Medicine C', 'schedule' => '1+0+0'],
+            ],
+            'prescription_date' => now()->toDateString(),
+        ]);
+
+        $token = $patient->createToken('test-token')->plainTextToken;
+
+        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->getJson('/api/my-prescriptions');
+
+        $response->assertOk();
+        $response->assertJsonCount(1, 'data');
+        $response->assertJsonPath('data.0.id', $prescription->id);
+    }
 }

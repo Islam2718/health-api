@@ -142,4 +142,36 @@ class AppointmentApiTest extends TestCase
         $response->assertJsonCount(1, 'data');
         $response->assertJsonPath('data.0.status', 'PENDING');
     }
+
+    public function test_authenticated_user_can_list_my_appointments(): void
+    {
+        $patient = User::factory()->create();
+        $doctor = User::factory()->create();
+        $token = $doctor->createToken('test-token')->plainTextToken;
+
+        Appointment::create([
+            'user_patient_id' => $patient->id,
+            'user_doctor_id' => $doctor->id,
+            'appointment_date' => now()->addDays(1)->toDateString(),
+            'appointment_time' => '09:00:00',
+            'appointment_type' => 'ONLINE',
+            'status' => 'APPROVED',
+        ]);
+
+        Appointment::create([
+            'user_patient_id' => $patient->id,
+            'user_doctor_id' => $doctor->id,
+            'appointment_date' => now()->addDays(2)->toDateString(),
+            'appointment_time' => '10:00:00',
+            'appointment_type' => 'ONLINE',
+            'status' => 'PENDING',
+        ]);
+
+        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->getJson('/api/my-appointments');
+
+        $response->assertOk();
+        $response->assertJsonCount(2, 'data');
+        $response->assertJsonPath('data.0.user_doctor_id', $doctor->id);
+    }
 }

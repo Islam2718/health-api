@@ -11,12 +11,24 @@ class AppointmentPrescriptionController extends Controller
 {
     public function index(Request $request)
     {
-        $prescriptions = AppointmentPrescription::where(function ($query) use ($request) {
-            $query->where('doctor_user_id', $request->user()->id)
-                ->orWhere('patient_user_id', $request->user()->id);
-        })->latest()->get();
+        $prescriptions = AppointmentPrescription::with(['appointment', 'doctor', 'patient', 'schedule', 'chamber'])
+            ->where(function ($query) use ($request) {
+                $query->where('doctor_user_id', $request->user()->id)
+                    ->orWhere('patient_user_id', $request->user()->id);
+            })->latest()->get();
 
         return response()->json(['data' => $prescriptions]);
+    }
+
+    /**
+     * List my prescriptions for the authenticated user.
+     *
+     * - Patient: own prescriptions.
+     * - Doctor: prescriptions written by the doctor.
+     */
+    public function myPrescriptions(Request $request)
+    {
+        return $this->index($request);
     }
 
     public function store(Request $request)

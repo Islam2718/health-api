@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 class AppointmentController extends Controller
 {
     /**
-     * List appointments for the authenticated user.
+     * List - (Doctor): All appointments.
      *
      * @response 200 {
      *   "data": [
@@ -54,11 +54,27 @@ class AppointmentController extends Controller
     {
         $appointments = Appointment::with(['user_patient', 'user_doctor', 'hospital', 'chamber'])
             ->where(function ($query) use ($request) {
-                $query->where('user_patient_id', $request->user()->id)
-                    ->orWhere('user_doctor_id', $request->user()->id);
+                $query->where('user_doctor_id', $request->user()->id);
+                    // ->orWhere('user_patient_id', $request->user()->id);
             })->latest()->get();
 
         return response()->json(['data' => $appointments]);
+    }
+
+    /**
+     * List
+     *
+     * - (Patient): My appointments.
+     */
+    public function myAppointments(Request $request)
+    {
+        // all appointment where user_patient_id is like token user_id or
+        $appointments = Appointment::with(['user_patient', 'user_doctor', 'hospital', 'chamber'])
+            ->where(function ($query) use ($request) {
+                $query->where('user_patient_id', $request->user()->id);                    
+            })->latest()->get();
+
+        return response()->json(['data' => $appointments]);        
     }
 
     /**
@@ -254,7 +270,7 @@ class AppointmentController extends Controller
     }
 
     /**
-     * Get upcoming appointments for the authenticated user.
+     * Get upcoming - doctor appointments
      *
      * @response 200 {
      *   "data": [
@@ -301,8 +317,9 @@ class AppointmentController extends Controller
 
         $appointments = Appointment::with(['userPatient', 'userDoctor', 'hospital', 'chamber'])
             ->where(function ($query) use ($request) {
-                $query->where('user_patient_id', $request->user()->id)
-                    ->orWhere('user_doctor_id', $request->user()->id);
+                $query->where('user_doctor_id', $request->user()->id);
+                    // where('user_patient_id', $request->user()->id)
+                    
             })
             ->whereDate('appointment_date', '>=', $today)
             ->whereIn('status', ['PENDING', 'APPROVED'])

@@ -44,7 +44,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('medicine-companies', MedicineCompanyController::class);
     Route::apiResource('medicines', MedicineController::class);
     Route::get('appointments/upcoming', [AppointmentController::class, 'upcoming']);
+    Route::get('my-appointments', [AppointmentController::class, 'myAppointments']);
     Route::apiResource('appointments', AppointmentController::class);
+    Route::get('my-prescriptions', [AppointmentPrescriptionController::class, 'myPrescriptions']);
     Route::apiResource('appointment-prescriptions', AppointmentPrescriptionController::class);
     Route::get('users/phone/{phone}', [UserController::class, 'findByPhone']);
     Route::post('users/phone/{phone}', [UserController::class, 'findOrCreateByPhone']);
