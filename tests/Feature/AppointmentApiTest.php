@@ -111,11 +111,11 @@ class AppointmentApiTest extends TestCase
         ]);
     }
 
-    public function test_authenticated_user_can_list_upcoming_appointments(): void
+    public function test_authenticated_doctor_can_list_upcoming_appointments(): void
     {
         $patient = User::factory()->create();
         $doctor = User::factory()->create();
-        $token = $patient->createToken('test-token')->plainTextToken;
+        $token = $doctor->createToken('test-token')->plainTextToken;
 
         Appointment::create([
             'user_patient_id' => $patient->id,
@@ -143,11 +143,11 @@ class AppointmentApiTest extends TestCase
         $response->assertJsonPath('data.0.status', 'PENDING');
     }
 
-    public function test_authenticated_user_can_list_my_appointments(): void
+    public function test_authenticated_patient_can_list_my_appointments(): void
     {
         $patient = User::factory()->create();
         $doctor = User::factory()->create();
-        $token = $doctor->createToken('test-token')->plainTextToken;
+        $token = $patient->createToken('test-token')->plainTextToken;
 
         Appointment::create([
             'user_patient_id' => $patient->id,
@@ -172,6 +172,6 @@ class AppointmentApiTest extends TestCase
 
         $response->assertOk();
         $response->assertJsonCount(2, 'data');
-        $response->assertJsonPath('data.0.user_doctor_id', $doctor->id);
+        $response->assertJsonPath('data.0.user_patient_id', $patient->id);
     }
 }

@@ -101,7 +101,7 @@ class AppointmentPrescriptionApiTest extends TestCase
         ]);
     }
 
-    public function test_authenticated_user_can_list_prescriptions(): void
+    public function test_authenticated_doctor_can_list_prescriptions(): void
     {
         $doctor = User::factory()->create();
         $patient = User::factory()->create();
@@ -131,7 +131,7 @@ class AppointmentPrescriptionApiTest extends TestCase
             'prescription_date' => now()->toDateString(),
         ]);
 
-        $token = $patient->createToken('test-token')->plainTextToken;
+        $token = $doctor->createToken('test-token')->plainTextToken;
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
             ->getJson('/api/appointment-prescriptions');
@@ -141,7 +141,7 @@ class AppointmentPrescriptionApiTest extends TestCase
         $response->assertJsonPath('data.0.id', $prescription->id);
     }
 
-    public function test_authenticated_user_can_list_my_prescriptions(): void
+    public function test_authenticated_patient_can_list_my_prescriptions(): void
     {
         $doctor = User::factory()->create();
         $patient = User::factory()->create();

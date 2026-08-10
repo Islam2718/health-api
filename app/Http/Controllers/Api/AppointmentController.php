@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 class AppointmentController extends Controller
 {
     /**
-     * List - (Doctor): All appointments.
+     * List appointments assigned to the authenticated doctor.
      *
      * @response 200 {
      *   "data": [
@@ -62,19 +62,16 @@ class AppointmentController extends Controller
     }
 
     /**
-     * List
-     *
-     * - (Patient): My appointments.
+     * List patient appointments for the authenticated user.
      */
     public function myAppointments(Request $request)
     {
-        // all appointment where user_patient_id is like token user_id or
         $appointments = Appointment::with(['user_patient', 'user_doctor', 'hospital', 'chamber'])
-            ->where(function ($query) use ($request) {
-                $query->where('user_patient_id', $request->user()->id);                    
-            })->latest()->get();
+            ->where('user_patient_id', $request->user()->id)
+            ->latest()
+            ->get();
 
-        return response()->json(['data' => $appointments]);        
+        return response()->json(['data' => $appointments]);
     }
 
     /**
@@ -270,7 +267,7 @@ class AppointmentController extends Controller
     }
 
     /**
-     * Get upcoming - doctor appointments
+     * Get upcoming appointments assigned to the authenticated doctor.
      *
      * @response 200 {
      *   "data": [

@@ -223,13 +223,13 @@ The API now supports authenticated profile modules for doctors, hospitals, and a
 
 ### Appointment endpoints
 
-- GET /api/appointments
-- GET /api/my-appointments — patient sees own, doctor sees assigned patient appointments
+- GET /api/appointments — doctor sees their assigned appointments
+- GET /api/my-appointments — patient sees own appointments
 - POST /api/appointments
 - GET /api/appointments/{id}
 - PUT /api/appointments/{id}
 - DELETE /api/appointments/{id}
-- GET /api/appointments/upcoming
+- GET /api/appointments/upcoming — doctor sees upcoming assigned appointments
 
 ### Public doctor listing endpoint
 
@@ -254,8 +254,8 @@ This returns the selected doctor profile along with related chambers and availab
 
 ### Prescription endpoints
 
-- GET /api/appointment-prescriptions
-- GET /api/my-prescriptions — patient sees own, doctor sees prescriptions they wrote
+- GET /api/appointment-prescriptions — doctor sees prescriptions they wrote
+- GET /api/my-prescriptions — patient sees own prescriptions
 - POST /api/appointment-prescriptions
 - GET /api/appointment-prescriptions/{id}
 - PUT /api/appointment-prescriptions/{id}
