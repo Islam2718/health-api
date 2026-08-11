@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 
 class AppointmentPrescriptionController extends Controller
 {
+    /**
+     * List : prescriptions
+     */    
     public function index(Request $request)
     {
         $prescriptions = AppointmentPrescription::with(['appointment', 'doctor', 'patient', 'schedule', 'chamber'])
@@ -20,7 +23,7 @@ class AppointmentPrescriptionController extends Controller
     }
 
     /**
-     * List my prescriptions for the authenticated patient.
+     * List : my prescriptions
      */
     public function myPrescriptions(Request $request)
     {
@@ -32,6 +35,9 @@ class AppointmentPrescriptionController extends Controller
         return response()->json(['data' => $prescriptions]);
     }
 
+    /**
+     * Create : prescription
+     */     
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -71,6 +77,9 @@ class AppointmentPrescriptionController extends Controller
         return response()->json(['data' => $prescription], 201);
     }
 
+    /**
+     * Get : prescriptions Details
+     */     
     public function show(Request $request, $id)
     {
         $prescription = AppointmentPrescription::where(function ($query) use ($request) {
@@ -81,6 +90,9 @@ class AppointmentPrescriptionController extends Controller
         return response()->json(['data' => $prescription]);
     }
 
+    /**
+     * Update : prescription
+     */
     public function update(Request $request, $id)
     {
         $prescription = AppointmentPrescription::where(function ($query) use ($request) {
@@ -114,6 +126,9 @@ class AppointmentPrescriptionController extends Controller
         return response()->json(['data' => $prescription]);
     }
 
+    /**
+     * Delete : prescription
+     */
     public function destroy(Request $request, $id)
     {
         $prescription = AppointmentPrescription::where(function ($query) use ($request) {

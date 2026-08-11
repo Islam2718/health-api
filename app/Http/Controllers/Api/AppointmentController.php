@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 class AppointmentController extends Controller
 {
     /**
-     * List appointments assigned to the authenticated doctor.
+     * List : appointments
      *
      * @response 200 {
      *   "data": [
@@ -62,7 +62,7 @@ class AppointmentController extends Controller
     }
 
     /**
-     * List patient appointments for the authenticated user.
+     * List : my appointments
      */
     public function myAppointments(Request $request)
     {
@@ -75,7 +75,7 @@ class AppointmentController extends Controller
     }
 
     /**
-     * Create a new appointment for the authenticated user.
+     * Create : appointment
      *
      * @bodyParam user_doctor_id int optional The doctor user ID. Defaults to authenticated user ID if omitted.
      * @bodyParam user_patient_id int optional The patient user ID. Defaults to authenticated user ID if omitted.
@@ -143,7 +143,7 @@ class AppointmentController extends Controller
     }
 
     /**
-     * Get a single appointment for the authenticated user.
+     * Get : appointment details
      *
      * @response 200 {
      *   "data": {
@@ -194,7 +194,7 @@ class AppointmentController extends Controller
     }
 
     /**
-     * Update an appointment for the authenticated user.
+     * Update : appointment
      *
      * @bodyParam user_doctor_id int optional The doctor user ID. Defaults to authenticated user ID if omitted.
      * @bodyParam user_patient_id int optional The patient user ID. Defaults to authenticated user ID if omitted.
@@ -271,6 +271,9 @@ class AppointmentController extends Controller
         return response()->json(['data' => $appointment]);
     }
 
+    /**
+     * Delete : appointment
+     */ 
     public function destroy(Request $request, $id)
     {
         $appointment = Appointment::where(function ($query) use ($request) {
@@ -284,7 +287,7 @@ class AppointmentController extends Controller
     }
 
     /**
-     * Get upcoming appointments assigned to the authenticated doctor.
+     * List: upcoming appointments
      *
      * @response 200 {
      *   "data": [
