@@ -59,13 +59,13 @@ jobs:
             ls -la
 
             echo "Migration status before migrate:"
-            php artisan migrate:status || true
+            php artisan migrate:status --database=mysql || true
 
-            php artisan migrate --force
-            php artisan db:seed --force --class=DatabaseSeeder
+            php artisan migrate --force --database=mysql
+            php artisan db:seed --force --class=DatabaseSeeder --database=mysql
 
             echo "Migration status after migrate:"
-            php artisan migrate:status || true
+            php artisan migrate:status --database=mysql || true
 
             php artisan optimize:clear
             php artisan config:cache
