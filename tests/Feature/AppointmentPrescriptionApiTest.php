@@ -52,7 +52,7 @@ class AppointmentPrescriptionApiTest extends TestCase
             'consultation_fee' => '1200.00',
             'discount' => '0.00',
             'appointment_type' => 'CHAMBER',
-            'status' => 'APPROVED',
+            'status' => 'APPOINTED',
             'appointment_date' => now()->addDays(1)->toDateString(),
             'appointment_time' => '10:00:00',
         ]);
@@ -115,7 +115,7 @@ class AppointmentPrescriptionApiTest extends TestCase
             'consultation_fee' => null,
             'discount' => null,
             'appointment_type' => 'ONLINE',
-            'status' => 'APPROVED',
+            'status' => 'APPOINTED',
             'appointment_date' => now()->toDateString(),
             'appointment_time' => now()->toTimeString(),
         ]);
@@ -155,7 +155,7 @@ class AppointmentPrescriptionApiTest extends TestCase
             'consultation_fee' => null,
             'discount' => null,
             'appointment_type' => 'ONLINE',
-            'status' => 'APPROVED',
+            'status' => 'APPOINTED',
             'appointment_date' => now()->toDateString(),
             'appointment_time' => now()->toTimeString(),
         ]);

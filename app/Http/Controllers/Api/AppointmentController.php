@@ -128,7 +128,7 @@ class AppointmentController extends Controller
             'consultation_fee' => ['sometimes', 'nullable', 'numeric'],
             'discount' => ['sometimes', 'nullable', 'numeric'],
             'appointment_type' => ['sometimes', 'required', 'in:HOSPITAL,CHAMBER,ONLINE'],
-            'status' => ['sometimes', 'nullable', 'in:PENDING,APPROVED,REJECTED,CANCELLED,COMPLETED,EXPIRED'],
+            'status' => ['sometimes', 'nullable', 'in:APPOINTED,PRESCRIBED,DELETED'],
             'appointment_date' => ['required', 'date'],
             'appointment_time' => ['sometimes', 'nullable', 'date_format:H:i:s'],
         ]);
@@ -252,7 +252,7 @@ class AppointmentController extends Controller
             'consultation_fee' => ['sometimes', 'nullable', 'numeric'],
             'discount' => ['sometimes', 'nullable', 'numeric'],
             'appointment_type' => ['sometimes', 'in:HOSPITAL,CHAMBER,ONLINE'],
-            'status' => ['sometimes', 'in:PENDING,APPROVED,REJECTED,CANCELLED,COMPLETED,EXPIRED'],
+            'status' => ['sometimes', 'in:APPOINTED,PRESCRIBED,DELETED'],
             'appointment_date' => ['sometimes', 'date'],
             'appointment_time' => ['sometimes', 'nullable', 'date_format:H:i:s'],
         ]);
@@ -339,7 +339,7 @@ class AppointmentController extends Controller
                     
             })
             ->whereDate('appointment_date', '>=', $today)
-            ->whereIn('status', ['PENDING', 'APPROVED'])
+            ->where('status', 'APPOINTED')
             ->orderBy('appointment_date')
             ->orderBy('appointment_time')
             ->get();

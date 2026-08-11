@@ -64,7 +64,7 @@ class AppointmentApiTest extends TestCase
                 'consultation_fee' => '1000.00',
                 'discount' => '100.00',
                 'appointment_type' => 'CHAMBER',
-                'status' => 'PENDING',
+                'status' => 'APPOINTED',
                 'appointment_date' => now()->addDays(2)->toDateString(),
                 'appointment_time' => '10:00:00',
             ]);
@@ -165,7 +165,7 @@ class AppointmentApiTest extends TestCase
             'appointment_date' => now()->addDays(5)->toDateString(),
             'appointment_time' => '09:00:00',
             'appointment_type' => 'ONLINE',
-            'status' => 'PENDING',
+            'status' => 'APPOINTED',
         ]);
 
         $token = $patient->createToken('test-token')->plainTextToken;
@@ -196,7 +196,7 @@ class AppointmentApiTest extends TestCase
             'appointment_date' => now()->addDays(5)->toDateString(),
             'appointment_time' => '09:00:00',
             'appointment_type' => 'ONLINE',
-            'status' => 'PENDING',
+            'status' => 'APPOINTED',
         ]);
 
         $token = $doctor->createToken('test-token')->plainTextToken;
@@ -229,7 +229,7 @@ class AppointmentApiTest extends TestCase
             'appointment_date' => now()->addDays(3)->toDateString(),
             'appointment_time' => '11:00:00',
             'appointment_type' => 'ONLINE',
-            'status' => 'PENDING',
+            'status' => 'APPOINTED',
         ]);
 
         Appointment::create([
@@ -238,7 +238,7 @@ class AppointmentApiTest extends TestCase
             'appointment_date' => now()->subDays(1)->toDateString(),
             'appointment_time' => '09:00:00',
             'appointment_type' => 'ONLINE',
-            'status' => 'APPROVED',
+            'status' => 'APPOINTED',
         ]);
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
@@ -246,7 +246,7 @@ class AppointmentApiTest extends TestCase
 
         $response->assertOk();
         $response->assertJsonCount(1, 'data');
-        $response->assertJsonPath('data.0.status', 'PENDING');
+        $response->assertJsonPath('data.0.status', 'APPOINTED');
     }
 
     public function test_authenticated_patient_can_list_my_appointments(): void
@@ -261,7 +261,7 @@ class AppointmentApiTest extends TestCase
             'appointment_date' => now()->addDays(1)->toDateString(),
             'appointment_time' => '09:00:00',
             'appointment_type' => 'ONLINE',
-            'status' => 'APPROVED',
+            'status' => 'APPOINTED',
         ]);
 
         Appointment::create([
@@ -270,7 +270,7 @@ class AppointmentApiTest extends TestCase
             'appointment_date' => now()->addDays(2)->toDateString(),
             'appointment_time' => '10:00:00',
             'appointment_type' => 'ONLINE',
-            'status' => 'PENDING',
+            'status' => 'APPOINTED',
         ]);
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
