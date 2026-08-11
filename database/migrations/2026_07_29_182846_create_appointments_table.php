@@ -30,7 +30,7 @@ return new class extends Migration
             ])->default('APPOINTED');
             $table->date('appointment_date');
             $table->time('appointment_time')->nullable();
-            $table->timestamps();
+            $table->timestamps();  
         });
     }
 
