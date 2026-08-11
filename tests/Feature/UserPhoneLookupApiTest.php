@@ -20,7 +20,8 @@ class UserPhoneLookupApiTest extends TestCase
 
         $response->assertOk()
             ->assertJsonPath('data.id', $user->id)
-            ->assertJsonPath('data.phone', '01712345678');
+            ->assertJsonPath('data.phone', '01712345678')
+            ->assertJsonPath('appointments', []);
     }
 
     public function test_creates_user_when_phone_not_found(): void
@@ -37,7 +38,8 @@ class UserPhoneLookupApiTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonPath('data.phone', '01787654321')
-            ->assertJsonPath('data.name', 'New Patient');
+            ->assertJsonPath('data.name', 'New Patient')
+            ->assertJsonPath('appointments', []);
 
         $this->assertDatabaseHas('users', ['phone' => '01787654321', 'email' => 'patient@example.com']);
     }

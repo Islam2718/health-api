@@ -216,8 +216,16 @@ The API now supports authenticated profile modules for doctors, hospitals, and a
 ### User phone lookup notes
 
 - `GET /api/users/phone/{phone}` checks whether a user exists with that phone number.
-- If the user exists, it returns their details.
-- `POST /api/users/phone/{phone}` creates a new patient user when the phone number is not already registered.
+- If the user exists, it returns:
+  - `data` => the user record
+  - `appointments` => aggregated appointments for the user as patient or doctor
+  - `prescriptions` => related prescriptions for the user
+  - `reports` => related reports for the user
+- `POST /api/users/phone/{phone}` creates a new patient user when the phone number is not already registered and returns:
+  - `data` => the created user
+  - `appointments` => `[]`
+  - `prescriptions` => `[]`
+  - `reports` => `[]`
 - This supports doctor workflows where a doctor can enter a patient phone and continue to the next appointment step.
 - These lookup routes are separate from standard `/api/users/{id}` to avoid route conflicts and clearly separate lookup vs. create behavior.
 

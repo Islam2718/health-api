@@ -24,13 +24,10 @@ return new class extends Migration
             $table->enum('appointment_type', ['HOSPITAL','CHAMBER','ONLINE'])->default('CHAMBER');
             // status 
             $table->enum('status', [
-                'PENDING',
-                'APPROVED',
-                'REJECTED',
-                'CANCELLED',
-                'COMPLETED',
-                'EXPIRED'
-            ])->default('PENDING');
+                'APPOINTED',
+                'PRESCRIBED',
+                'DELETED',
+            ])->default('APPOINTED');
             $table->date('appointment_date');
             $table->time('appointment_time')->nullable();
             $table->timestamps();
