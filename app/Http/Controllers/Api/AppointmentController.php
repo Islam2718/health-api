@@ -77,6 +77,9 @@ class AppointmentController extends Controller
     /**
      * Create a new appointment for the authenticated user.
      *
+     * @bodyParam user_doctor_id int optional The doctor user ID. Defaults to authenticated user ID if omitted.
+     * @bodyParam user_patient_id int optional The patient user ID. Defaults to authenticated user ID if omitted.
+     *
      * @response 201 {
      *   "data": {
      *     "id": 1,
@@ -117,7 +120,8 @@ class AppointmentController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'user_doctor_id' => ['required', 'exists:users,id'],
+            'user_doctor_id' => ['sometimes', 'exists:users,id'],
+            'user_patient_id' => ['sometimes', 'exists:users,id'],
             'hospital_id' => ['sometimes', 'nullable', 'exists:hospitals,id'],
             'chamber_id' => ['sometimes', 'nullable', 'exists:chambers,id'],
             'doctor_schedule_id' => ['sometimes', 'nullable', 'exists:doctor_schedules,id'],
@@ -129,7 +133,8 @@ class AppointmentController extends Controller
             'appointment_time' => ['sometimes', 'nullable', 'date_format:H:i:s'],
         ]);
 
-        $data['user_patient_id'] = $request->user()->id;
+        $data['user_doctor_id'] = $request->input('user_doctor_id') ?? $request->user()->id;
+        $data['user_patient_id'] = $request->input('user_patient_id') ?? $request->user()->id;
 
         $appointment = Appointment::create($data);
         $appointment->load(['userPatient', 'userDoctor', 'hospital', 'chamber']);
@@ -191,6 +196,9 @@ class AppointmentController extends Controller
     /**
      * Update an appointment for the authenticated user.
      *
+     * @bodyParam user_doctor_id int optional The doctor user ID. Defaults to authenticated user ID if omitted.
+     * @bodyParam user_patient_id int optional The patient user ID. Defaults to authenticated user ID if omitted.
+     *
      * @response 200 {
      *   "data": {
      *     "id": 1,
@@ -236,7 +244,8 @@ class AppointmentController extends Controller
         })->where('id', $id)->firstOrFail();
 
         $data = $request->validate([
-            'user_doctor_id' => ['sometimes', 'required', 'exists:users,id'],
+            'user_doctor_id' => ['sometimes', 'exists:users,id'],
+            'user_patient_id' => ['sometimes', 'exists:users,id'],
             'hospital_id' => ['sometimes', 'nullable', 'exists:hospitals,id'],
             'chamber_id' => ['sometimes', 'nullable', 'exists:chambers,id'],
             'doctor_schedule_id' => ['sometimes', 'nullable', 'exists:doctor_schedules,id'],
@@ -247,6 +256,14 @@ class AppointmentController extends Controller
             'appointment_date' => ['sometimes', 'date'],
             'appointment_time' => ['sometimes', 'nullable', 'date_format:H:i:s'],
         ]);
+
+        if (!array_key_exists('user_doctor_id', $data)) {
+            $data['user_doctor_id'] = $request->user()->id;
+        }
+
+        if (!array_key_exists('user_patient_id', $data)) {
+            $data['user_patient_id'] = $request->user()->id;
+        }
 
         $appointment->update($data);
         $appointment->load(['userPatient', 'userDoctor', 'hospital', 'chamber']);

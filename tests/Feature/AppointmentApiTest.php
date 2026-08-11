@@ -86,6 +86,50 @@ class AppointmentApiTest extends TestCase
         ]);
     }
 
+    public function test_authenticated_patient_fallbacks_to_token_user_as_patient_if_user_patient_id_missing(): void
+    {
+        $patient = User::factory()->create();
+        $doctor = User::factory()->create();
+        $token = $patient->createToken('test-token')->plainTextToken;
+
+        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->postJson('/api/appointments', [
+                'user_doctor_id' => $doctor->id,
+                'appointment_date' => now()->addDays(2)->toDateString(),
+            ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('data.user_patient_id', $patient->id)
+            ->assertJsonPath('data.user_doctor_id', $doctor->id);
+
+        $this->assertDatabaseHas('appointments', [
+            'user_patient_id' => $patient->id,
+            'user_doctor_id' => $doctor->id,
+        ]);
+    }
+
+    public function test_authenticated_doctor_fallbacks_to_token_user_as_doctor_if_user_doctor_id_missing(): void
+    {
+        $patient = User::factory()->create();
+        $doctor = User::factory()->create();
+        $token = $doctor->createToken('test-token')->plainTextToken;
+
+        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->postJson('/api/appointments', [
+                'user_patient_id' => $patient->id,
+                'appointment_date' => now()->addDays(2)->toDateString(),
+            ]);
+
+        $response->assertCreated()
+            ->assertJsonPath('data.user_patient_id', $patient->id)
+            ->assertJsonPath('data.user_doctor_id', $doctor->id);
+
+        $this->assertDatabaseHas('appointments', [
+            'user_patient_id' => $patient->id,
+            'user_doctor_id' => $doctor->id,
+        ]);
+    }
+
     public function test_authenticated_user_can_create_appointment_with_consultation_fee(): void
     {
         $patient = User::factory()->create();
@@ -108,6 +152,68 @@ class AppointmentApiTest extends TestCase
         $this->assertDatabaseHas('appointments', [
             'id' => $appointment->id,
             'consultation_fee' => '1200.00',
+        ]);
+    }
+
+    public function test_authenticated_patient_update_fallbacks_to_token_user_as_patient_if_user_patient_id_missing(): void
+    {
+        $patient = User::factory()->create();
+        $doctor = User::factory()->create();
+        $appointment = Appointment::create([
+            'user_patient_id' => $patient->id,
+            'user_doctor_id' => $doctor->id,
+            'appointment_date' => now()->addDays(5)->toDateString(),
+            'appointment_time' => '09:00:00',
+            'appointment_type' => 'ONLINE',
+            'status' => 'PENDING',
+        ]);
+
+        $token = $patient->createToken('test-token')->plainTextToken;
+
+        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->putJson('/api/appointments/' . $appointment->id, [
+                'appointment_date' => now()->addDays(6)->toDateString(),
+            ]);
+
+        $response->assertOk()
+            ->assertJsonPath('data.user_patient_id', $patient->id)
+            ->assertJsonPath('data.user_doctor_id', $patient->id);
+
+        $this->assertDatabaseHas('appointments', [
+            'id' => $appointment->id,
+            'user_patient_id' => $patient->id,
+            'user_doctor_id' => $patient->id,
+        ]);
+    }
+
+    public function test_authenticated_doctor_update_fallbacks_to_token_user_as_doctor_if_user_doctor_id_missing(): void
+    {
+        $patient = User::factory()->create();
+        $doctor = User::factory()->create();
+        $appointment = Appointment::create([
+            'user_patient_id' => $patient->id,
+            'user_doctor_id' => $doctor->id,
+            'appointment_date' => now()->addDays(5)->toDateString(),
+            'appointment_time' => '09:00:00',
+            'appointment_type' => 'ONLINE',
+            'status' => 'PENDING',
+        ]);
+
+        $token = $doctor->createToken('test-token')->plainTextToken;
+
+        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->putJson('/api/appointments/' . $appointment->id, [
+                'appointment_date' => now()->addDays(6)->toDateString(),
+            ]);
+
+        $response->assertOk()
+            ->assertJsonPath('data.user_doctor_id', $doctor->id)
+            ->assertJsonPath('data.user_patient_id', $doctor->id);
+
+        $this->assertDatabaseHas('appointments', [
+            'id' => $appointment->id,
+            'user_doctor_id' => $doctor->id,
+            'user_patient_id' => $doctor->id,
         ]);
     }
 
