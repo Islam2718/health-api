@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\MedicineCompanyController;
 use App\Http\Controllers\Api\MedicineController;
 use App\Http\Controllers\Api\ProfessionalExperienceController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\PostController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
@@ -33,7 +34,15 @@ Route::get('medicine-companies/public/{id}', [MedicineCompanyController::class, 
 Route::get('medicines/public', [MedicineController::class, 'publicIndex']);
 Route::get('medicines/public/{id}', [MedicineController::class, 'publicShow']);
 
+// Public posts (read-only)
+Route::get('posts', [PostController::class, 'index']);
+Route::get('posts/{id}', [PostController::class, 'show']);
+
 Route::middleware('auth:sanctum')->group(function () {
+    // Posts: authenticated actions
+    Route::post('posts', [PostController::class, 'store']);
+    Route::post('posts/{post}/comments', [PostController::class, 'comment']);
+    Route::post('posts/{post}/ratings', [PostController::class, 'rate']);
     Route::apiResource('users', UserController::class);
     Route::apiResource('doctors', DoctorController::class);
     Route::apiResource('educations', EducationController::class);

@@ -148,6 +148,56 @@ Open the docs at:
 
 ```text
 http://127.0.0.1:8000/docs/api
+
+## Posts / Discussion Module
+
+This feature allows users (patients or doctors) to post content, comment, reply to comments, and rate posts.
+
+Behavior summary:
+- Any user (unauthenticated) can read public posts and their comments.
+- Creating posts, commenting, replying and rating require authentication (Sanctum).
+
+Endpoints (quick reference):
+
+- GET /api/posts — list public posts (paginated)
+- GET /api/posts/{id} — show a single post with comments and ratings
+- POST /api/posts — create a new post (auth) — body: `{ title?, body, type?, is_public? }`
+- POST /api/posts/{post}/comments — add a comment or reply (auth) — body: `{ body, parent_id? }`
+- POST /api/posts/{post}/ratings — add or update a rating (auth) — body: `{ rating (1-5), review? }`
+
+Example: create a post (authenticated)
+
+```bash
+curl -X POST "http://localhost/api/posts" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"My issue","body":"I have chest pain","type":"PATIENT_ISSUE"}'
+```
+
+Example: comment on a post (authenticated)
+
+```bash
+curl -X POST "http://localhost/api/posts/1/comments" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"body":"Have you tried resting?"}'
+```
+
+Example: rate a post (authenticated)
+
+```bash
+curl -X POST "http://localhost/api/posts/1/ratings" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"rating":5,"review":"Very helpful"}'
+```
+
+Notes for implementers:
+- The module uses `posts`, `comments` and `post_ratings` tables.
+- Comments support nested replies via `parent_id`.
+- Ratings are unique per user+post and are updated if the same user rates again.
+- API documentation is generated with Scramble — controllers and FormRequests are annotated to improve docs output.
+
 ```
 
 ## Authentication
