@@ -54,8 +54,19 @@ jobs:
 
             composer install --no-dev --optimize-autoloader --no-interaction
 
+            echo "Working directory: $(pwd)"
+            echo "Listing current path contents:"
+            ls -la
+
+            echo "Migration status before migrate:"
+            php artisan migrate:status || true
+
             php artisan migrate --force
-            php artisan db:seed --force
+            php artisan db:seed --force --class=DatabaseSeeder
+
+            echo "Migration status after migrate:"
+            php artisan migrate:status || true
+
             php artisan optimize:clear
             php artisan config:cache
             php artisan route:cache
