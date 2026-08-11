@@ -27,7 +27,7 @@ class MedicineCompanyController extends Controller
             });
         }
 
-        if ($request->boolean('random')) {
+        if ($request->boolean('random')) { 
             $query->inRandomOrder();
         } else {
             $query->latest();

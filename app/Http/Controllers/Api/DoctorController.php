@@ -16,7 +16,7 @@ class DoctorController extends Controller
             'data' => $doctor,
         ]);
     }
-
+ 
     public function publicShow(Request $request, $id)
     {
         $doctor = Doctor::with(['user', 'chambers.doctorSchedules' => function ($query) {
