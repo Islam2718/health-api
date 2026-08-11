@@ -58,7 +58,6 @@ class UserController extends Controller
             'data' => $user,
             'appointments' => $appointments,
             'prescriptions' => $user->prescriptions()->with(['doctor', 'hospital', 'chamber'])->get(),
-            'reports' => $user->reports()->with(['doctor', 'hospital', 'chamber'])->get(),
         ]);
     }
 
@@ -69,7 +68,6 @@ class UserController extends Controller
             'data' => $user,
             'appointments' => [],
             'prescriptions' => [],
-            'reports' => [],
         ]);
     }
 

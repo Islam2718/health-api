@@ -79,4 +79,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Appointment::class, 'user_doctor_id');
     }
+
+    public function prescriptions()
+    {
+        return $this->hasMany(AppointmentPrescription::class, 'patient_user_id');
+    }
 }
