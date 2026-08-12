@@ -12,16 +12,17 @@ class UserPhoneLookupApiTest extends TestCase
 
     public function test_returns_existing_user_by_phone(): void
     {
-        $user = User::factory()->create(['phone' => '01712345678']);
+        $user = User::factory()->create(['phone' => '01710001337']);
         $token = $user->createToken('test-token')->plainTextToken;
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-            ->getJson('/api/users/phone/01712345678');
+            ->getJson('/api/users/phone/01710001337');
 
         $response->assertOk()
             ->assertJsonPath('data.id', $user->id)
-            ->assertJsonPath('data.phone', '01712345678')
-            ->assertJsonPath('appointments', []);
+            ->assertJsonPath('data.phone', '01710001337')
+            ->assertJsonPath('data.appointments', [])
+            ->assertJsonPath('data.prescriptions', []);
     }
 
     public function test_creates_user_when_phone_not_found(): void
@@ -30,17 +31,18 @@ class UserPhoneLookupApiTest extends TestCase
         $token = $doctor->createToken('test-token')->plainTextToken;
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-            ->postJson('/api/users/phone/01787654321', [
+            ->postJson('/api/users/phone/01710001337', [
                 'name' => 'New Patient',
                 'password' => 'password',
-                'email' => 'patient@example.com',
+                'email' => 'ibno@health.com',
             ]);
 
         $response->assertStatus(200)
-            ->assertJsonPath('data.phone', '01787654321')
+            ->assertJsonPath('data.phone', '01710001337')
             ->assertJsonPath('data.name', 'New Patient')
-            ->assertJsonPath('appointments', []);
+            ->assertJsonPath('data.prescriptions', [])
+            ->assertJsonPath('data.appointments', []);
 
-        $this->assertDatabaseHas('users', ['phone' => '01787654321', 'email' => 'patient@example.com']);
+        $this->assertDatabaseHas('users', ['phone' => '01710001337', 'email' => 'ibno@health.com']);
     }
 }
