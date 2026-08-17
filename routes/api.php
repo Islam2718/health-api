@@ -60,8 +60,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('appointment-prescriptions', AppointmentPrescriptionController::class);
     Route::get('users/phone/{phone}', [UserController::class, 'findByPhone']);
     Route::post('users/phone/{phone}', [UserController::class, 'findOrCreateByPhone']);
-    // Route::get('blood-donors/public', [BloodDonorController::class, 'publicIndex']);
-    // Route::get('blood-donors/public/{id}', [BloodDonorController::class, 'publicShow']);
+    //    
     Route::patch('blood-donors/interest', [BloodDonorController::class, 'updateInterest']);
     Route::get('blood-donors',[BloodDonorController::class, 'index']);
     Route::post('blood-donations',[BloodDonorController::class, 'store']);

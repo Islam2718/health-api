@@ -100,4 +100,45 @@ class BloodDonorController extends Controller
 
         return BloodDonationResource::collection($donations);
     }
+
+    public function publicIndex(Request $request)
+    {
+        $query = User::query()
+            ->where('donor_interest', true);
+
+        if ($request->filled('blood_group')) {
+            $query->where('blood_group', $request->blood_group);
+        }
+
+        if ($request->filled('gender')) {
+            $query->where('gender', $request->gender);
+        }
+
+        if ($request->filled('address')) {
+            $query->where('address', 'like', '%' . $request->address . '%');
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        $donors = $query->latest()->paginate(
+            $request->integer('per_page', 15)
+        );
+
+        return BloodDonorResource::collection($donors);
+    }
+    public function publicShow(int $id)
+    {
+        $donor = User::query()
+            ->where('donor_interest', true)
+            ->findOrFail($id);
+
+        return new BloodDonorResource($donor);
+    }
 }
