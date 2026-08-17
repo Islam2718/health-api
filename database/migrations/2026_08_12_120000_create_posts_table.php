@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('title')->nullable();
             $table->text('body')->nullable();
+            $table->string('tags')->nullable();
             $table->enum('type', ['PATIENT_ISSUE', 'DOCTOR_POST'])->default('PATIENT_ISSUE');
             $table->boolean('is_public')->default(true);
             $table->timestamps();

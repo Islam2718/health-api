@@ -18,6 +18,7 @@ class StorePostRequest extends FormRequest
             'body' => 'required|string',
             'type' => 'nullable|in:PATIENT_ISSUE,DOCTOR_POST',
             'is_public' => 'nullable|boolean',
+            'tags' => 'nullable|string',
         ];
     }
 }

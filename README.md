@@ -161,7 +161,7 @@ Endpoints (quick reference):
 
 - GET /api/posts — list public posts (paginated)
 - GET /api/posts/{id} — show a single post with comments and ratings
-- POST /api/posts — create a new post (auth) — body: `{ title?, body, type?, is_public? }`
+- POST /api/posts — create a new post (auth) — body: `{ title?, body, tags?, type?, is_public? }`
 - POST /api/posts/{post}/comments — add a comment or reply (auth) — body: `{ body, parent_id? }`
 - POST /api/posts/{post}/ratings — add or update a rating (auth) — body: `{ rating (1-5), review? }`
 

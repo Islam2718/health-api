@@ -17,6 +17,7 @@ class Post extends Model
         'title',
         'body',
         'type',
+        'tags',
         'is_public',
     ];
 
