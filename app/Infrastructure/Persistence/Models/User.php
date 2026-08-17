@@ -8,6 +8,9 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Facades\DB;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Infrastructure\Persistence\Models\BloodDonation;
+
 class User extends Authenticatable
 {
     // use HasFactory, Notifiable;
@@ -31,6 +34,7 @@ class User extends Authenticatable
         'blood_group',
         'marital_status',
         'is_active',
+        'donor_interest'
     ];
 
     /**
@@ -48,6 +52,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'date_of_birth' => 'date',
         'is_active' => 'boolean',
+        'donor_interest' => 'boolean',
     ];
 
     /**
@@ -83,5 +88,12 @@ class User extends Authenticatable
     public function prescriptions()
     {
         return $this->hasMany(AppointmentPrescription::class, 'patient_user_id');
+    }
+    public function bloodDonations(): HasMany
+    {
+        return $this->hasMany(
+            BloodDonation::class,
+            'donor_user_id'
+        );
     }
 }

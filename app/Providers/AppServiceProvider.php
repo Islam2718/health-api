@@ -9,6 +9,8 @@ use App\Domain\Interfaces\UserRepository;
 use App\Infrastructure\Persistence\Repositories\MedicineCompanyRepositoryImpl;
 use App\Infrastructure\Persistence\Repositories\MedicineRepositoryImpl;
 use App\Infrastructure\Persistence\Repositories\UserRepositoryImpl;
+use App\Domain\Interfaces\BloodDonationRepositoryInterface;
+use App\Infrastructure\Persistence\Repositories\BloodDonationRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,6 +32,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             MedicineRepository::class,
             MedicineRepositoryImpl::class
+        );
+
+        $this->app->bind(
+            BloodDonationRepositoryInterface::class,
+            BloodDonationRepository::class
         );
     }
 
