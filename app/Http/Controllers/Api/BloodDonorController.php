@@ -14,6 +14,7 @@ use App\Http\Requests\UpdateDonorInterestRequest;
 use App\Http\Resources\BloodDonationResource;
 use App\Http\Resources\BloodDonorResource;
 use Illuminate\Http\Request;
+use App\Infrastructure\Persistence\Models\User;
 
 class BloodDonorController extends Controller
 {
@@ -103,6 +104,7 @@ class BloodDonorController extends Controller
 
     public function publicIndex(Request $request)
     {
+        // dd('here..'); die();
         $query = User::query()
             ->where('donor_interest', true);
 
@@ -110,8 +112,8 @@ class BloodDonorController extends Controller
             $query->where('blood_group', $request->blood_group);
         }
 
-        if ($request->filled('gender')) {
-            $query->where('gender', $request->gender);
+        if ($request->filled('patient_gender')) {
+            $query->where('patient_gender', $request->gender);
         }
 
         if ($request->filled('address')) {
