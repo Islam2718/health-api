@@ -62,10 +62,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('users/phone/{phone}', [UserController::class, 'findOrCreateByPhone']);
     //    
     Route::patch('blood-donors/interest', [BloodDonorController::class, 'updateInterest']);
-    Route::get('blood-donors',[BloodDonorController::class, 'index']);
-    Route::post('blood-donations',[BloodDonorController::class, 'store']);
-    Route::get('my-blood-donations',[BloodDonorController::class, 'myDonations']);
-    // Existing public donor routes
-    Route::get('blood-donors/public',[BloodDonorController::class, 'publicIndex']);
-    Route::get('blood-donors/public/{id}',[BloodDonorController::class, 'publicShow']);
+    Route::get('blood-donors', [BloodDonorController::class, 'index']);
+    Route::post('blood-donations', [BloodDonorController::class, 'store']);
+    Route::get('my-blood-donations', [BloodDonorController::class, 'myDonations']);
 });
+Route::get('blood-donors/public', [BloodDonorController::class, 'publicIndex']);
+Route::get('blood-donors/public/{id}', [BloodDonorController::class, 'publicShow']);
