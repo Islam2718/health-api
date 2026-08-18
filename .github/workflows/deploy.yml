@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: 📥 Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 🐘 Setup PHP
         uses: shivammathur/setup-php@v2
@@ -22,7 +22,9 @@ jobs:
 
       - name: 📦 Install Composer dependencies
         run: |
-          composer install --no-interaction --prefer-dist
+          composer install \
+            --no-interaction \
+            --prefer-dist
 
       - name: 🧪 Prepare environment & run tests
         run: |
@@ -30,7 +32,14 @@ jobs:
           php artisan key:generate
           php artisan test
 
-      # ✅ FIXED rsync (single line switches)
+      - name: 📦 Install production Composer dependencies
+        run: |
+          composer install \
+            --no-dev \
+            --no-interaction \
+            --prefer-dist \
+            --optimize-autoloader
+
       - name: 🚀 Deploy via rsync
         uses: burnett01/rsync-deployments@v9
         with:
@@ -52,9 +61,8 @@ jobs:
           script: |
             cd ${{ secrets.APP_PATH }}
 
-            composer install --no-dev --optimize-autoloader --no-interaction
-
             echo "Working directory: $(pwd)"
+
             echo "Listing current path contents:"
             ls -la
 
@@ -62,7 +70,11 @@ jobs:
             php artisan migrate:status --database=mysql || true
 
             php artisan migrate --force --database=mysql
-            php artisan db:seed --force --class=DatabaseSeeder --database=mysql
+
+            php artisan db:seed \
+              --force \
+              --class=DatabaseSeeder \
+              --database=mysql
 
             echo "Migration status after migrate:"
             php artisan migrate:status --database=mysql || true
