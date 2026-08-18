@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Infrastructure\Persistence\Models\BloodDonation;
+use App\Infrastructure\Persistence\Models\Ambulance;
 
 class User extends Authenticatable
 {
@@ -95,5 +96,9 @@ class User extends Authenticatable
             BloodDonation::class,
             'donor_user_id'
         );
+    }
+    public function ambulances(): HasMany
+    {
+        return $this->hasMany(Ambulance::class);
     }
 }

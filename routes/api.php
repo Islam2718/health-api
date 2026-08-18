@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\ProfessionalExperienceController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\BloodDonorController;
+use App\Http\Controllers\Api\AmbulanceController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
@@ -38,6 +39,12 @@ Route::get('medicines/public/{id}', [MedicineController::class, 'publicShow']);
 // Public posts (read-only)
 Route::get('posts', [PostController::class, 'index']);
 Route::get('posts/{id}', [PostController::class, 'show']);
+
+Route::get('blood-donors/public', [BloodDonorController::class, 'publicIndex']);
+Route::get('blood-donors/public/{id}', [BloodDonorController::class, 'publicShow']);
+
+Route::get('/ambulances/public', [AmbulanceController::class, 'publicIndex']);
+Route::get('/ambulances/public/{id}', [AmbulanceController::class, 'publicShow']);
 
 Route::middleware('auth:sanctum')->group(function () {
     // Posts: authenticated actions
@@ -65,6 +72,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('blood-donors', [BloodDonorController::class, 'index']);
     Route::post('blood-donations', [BloodDonorController::class, 'store']);
     Route::get('my-blood-donations', [BloodDonorController::class, 'myDonations']);
+    //
+    Route::get('/ambulances', [AmbulanceController::class, 'index']);
+    Route::post('/ambulances', [AmbulanceController::class, 'store']);
+    Route::get('/ambulances/{id}', [AmbulanceController::class, 'show']);
+    Route::put('/ambulances/{id}', [AmbulanceController::class, 'update']);
+    Route::delete('/ambulances/{id}', [AmbulanceController::class, 'destroy']);
 });
-Route::get('blood-donors/public', [BloodDonorController::class, 'publicIndex']);
-Route::get('blood-donors/public/{id}', [BloodDonorController::class, 'publicShow']);
