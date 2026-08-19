@@ -139,6 +139,7 @@ class BloodDonorController extends Controller
     {
         $donor = User::query()
             ->where('donor_interest', true)
+            ->with('bloodDonations')
             ->findOrFail($id);
 
         return new BloodDonorResource($donor);
