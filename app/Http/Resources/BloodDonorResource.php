@@ -12,10 +12,14 @@ class BloodDonorResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'phone' => $this->phone,
             'gender' => $this->gender,
             'blood_group' => $this->blood_group,
             'address' => $this->address,
             'donor_interest' => (bool) $this->donor_interest,
+            'blood_donations' => BloodDonationResource::collection(
+                $this->whenLoaded('bloodDonations')
+            ),
         ];
     }
 }

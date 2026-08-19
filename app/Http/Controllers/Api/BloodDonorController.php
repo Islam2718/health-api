@@ -15,6 +15,7 @@ use App\Http\Resources\BloodDonationResource;
 use App\Http\Resources\BloodDonorResource;
 use Illuminate\Http\Request;
 use App\Infrastructure\Persistence\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class BloodDonorController extends Controller
 {
@@ -24,7 +25,7 @@ class BloodDonorController extends Controller
     ) {
         $user = $useCase->execute(
             new UpdateDonorInterestDTO(
-                userId: auth()->id(),
+                userId: Auth::id(),
                 donorInterest: $request->boolean('donor_interest')
             )
         );
@@ -67,7 +68,7 @@ class BloodDonorController extends Controller
     ) {
         $donation = $useCase->execute(
             new CreateBloodDonationDTO(
-                donorUserId: auth()->id(),
+                donorUserId: Auth::id(),
                 patientName: $request->string('patient_name')->toString(),
                 patientGender: $request->input('patient_gender'),
                 patientDisease: $request->input('patient_disease'),
@@ -95,7 +96,7 @@ class BloodDonorController extends Controller
         );
 
         $donations = $useCase->execute(
-            auth()->id(),
+            Auth::id(),
             $perPage
         );
 
