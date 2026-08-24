@@ -14,6 +14,13 @@ use App\Infrastructure\Persistence\Repositories\BloodDonationRepository;
 use App\Domain\Interfaces\AmbulanceRepositoryInterface;
 use App\Infrastructure\Persistence\Repositories\AmbulanceRepository;
 
+use App\Domain\Interfaces\StoreRepositoryInterface;
+use App\Infrastructure\Persistence\Repositories\StoreRepository;
+use App\Domain\Interfaces\StoreProductRepositoryInterface;
+use App\Infrastructure\Persistence\Repositories\StoreProductRepository;
+use App\Domain\Interfaces\StockRepositoryInterface;
+use App\Infrastructure\Persistence\Repositories\StockRepository;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -43,7 +50,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             AmbulanceRepositoryInterface::class,
             AmbulanceRepository::class
-        );        
+        );
+        $this->app->bind(StoreRepositoryInterface::class, StoreRepository::class);
+        $this->app->bind(StoreProductRepositoryInterface::class, StoreProductRepository::class);
+        $this->app->bind(StockRepositoryInterface::class, StockRepository::class);      
     }
 
     /**

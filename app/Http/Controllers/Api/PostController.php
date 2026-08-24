@@ -10,6 +10,8 @@ use App\Infrastructure\Persistence\Models\Post;
 use App\Infrastructure\Persistence\Models\Comment;
 use App\Infrastructure\Persistence\Models\PostRating;
 use Illuminate\Http\Request;
+// auth 
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
@@ -32,7 +34,7 @@ class PostController extends Controller
     public function store(StorePostRequest $request)
     {
         $data = $request->validated();
-        $data['user_id'] = auth()->id();
+        $data['user_id'] = Auth::id();
         $post = Post::create($data);
         return response()->json($post, 201);
     }
@@ -42,7 +44,7 @@ class PostController extends Controller
         $post = Post::findOrFail($postId);
         $data = $request->validated();
         $data['post_id'] = $post->id;
-        $data['user_id'] = auth()->id();
+        $data['user_id'] = Auth::id();
         $comment = Comment::create($data);
         return response()->json($comment, 201);
     }
@@ -52,7 +54,7 @@ class PostController extends Controller
         $post = Post::findOrFail($postId);
         $data = $request->validated();
         $rating = PostRating::updateOrCreate(
-            ['post_id' => $post->id, 'user_id' => auth()->id()],
+            ['post_id' => $post->id, 'user_id' => Auth::id()],
             ['rating' => $data['rating'], 'review' => $data['review'] ?? null]
         );
         return response()->json($rating, 200);

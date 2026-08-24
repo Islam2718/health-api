@@ -18,6 +18,10 @@ use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\BloodDonorController;
 use App\Http\Controllers\Api\AmbulanceController;
 
+use App\Http\Controllers\Api\StoreController;
+use App\Http\Controllers\Api\StoreProductController;
+use App\Http\Controllers\Api\StoreStockController;
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 Route::middleware('auth:sanctum')->patch('/profile', [AuthController::class, 'updateProfile']);
@@ -78,4 +82,23 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/ambulances/{id}', [AmbulanceController::class, 'show']);
     Route::put('/ambulances/{id}', [AmbulanceController::class, 'update']);
     Route::delete('/ambulances/{id}', [AmbulanceController::class, 'destroy']);
+    // store 
+    // Store routes
+    Route::apiResource('stores', StoreController::class);
+    
+    // Store Product routes
+    Route::prefix('stores/{storeId}')->group(function () {
+        Route::apiResource('products', StoreProductController::class);
+        
+        // Stock routes
+        Route::prefix('stocks')->group(function () {
+            Route::get('/', [StoreStockController::class, 'index']);
+            Route::post('/', [StoreStockController::class, 'store']);
+            Route::get('/summary', [StoreStockController::class, 'getStockSummary']);
+            Route::get('/{stockId}', [StoreStockController::class, 'show']);
+        });
+        
+        // Product stock history
+        Route::get('/products/{productId}/stocks', [StoreStockController::class, 'getProductStock']);
+    });    
 });
