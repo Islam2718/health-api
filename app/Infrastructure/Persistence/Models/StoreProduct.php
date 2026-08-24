@@ -3,6 +3,7 @@ namespace App\Infrastructure\Persistence\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+// use Database\Factories\StoreProductFactory;
 
 class StoreProduct extends Model
 {
@@ -24,7 +25,9 @@ class StoreProduct extends Model
         'is_active' => 'boolean',
         'buy_price' => 'decimal:2',
         'sale_price' => 'decimal:2',
-        'wholesale_price' => 'decimal:2'
+        'wholesale_price' => 'decimal:2',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     public function store()

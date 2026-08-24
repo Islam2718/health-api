@@ -41,7 +41,7 @@ class StoreApiTest extends TestCase
     {
         $user = User::factory()->create();
 
-        // Create first store using Infrastructure Model Factory
+        // Create first store
         Store::factory()->create([
             'user_id' => $user->id,
             'trade_license_no' => 'TL-2024-001',
