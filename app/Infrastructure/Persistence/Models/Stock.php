@@ -9,6 +9,11 @@ class Stock extends Model
 {
     use HasFactory;
 
+    protected static function newFactory()
+    {
+        return \Database\Factories\StockFactory::new();
+    }    
+
     protected $table = 'stocks';
 
     protected $fillable = [

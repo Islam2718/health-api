@@ -1,7 +1,9 @@
 <?php
+
 namespace Database\Factories;
 
 use App\Infrastructure\Persistence\Models\Medicine;
+use App\Infrastructure\Persistence\Models\MedicineCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class MedicineFactory extends Factory
@@ -11,13 +13,14 @@ class MedicineFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->word() . ' ' . $this->faker->word(),
-            'generic_name' => $this->faker->word(),
-            'category' => $this->faker->randomElement(['Antibiotic', 'Painkiller', 'Antihistamine', 'Antidepressant']),
-            'manufacturer' => $this->faker->company(),
-            'strength' => $this->faker->randomElement(['500mg', '250mg', '100mg', '50mg', '10mg']),
-            'price' => $this->faker->randomFloat(2, 10, 500),
-            'is_active' => true,
+            'name' => fake()->words(2, true),
+            'generic_name' => fake()->word(),
+            'weight' => fake()->randomFloat(2, 0.1, 100),
+            'suggestion_price' => fake()->randomFloat(2, 10, 500),
+            'type' => fake()->word(),
+            'description' => fake()->sentence(),
+            'company_id' => 1,
+            'medicine_category_id' => MedicineCategory::factory(),
         ];
     }
 }

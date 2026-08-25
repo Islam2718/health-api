@@ -1,5 +1,5 @@
 <?php
-
+// database/factories/StoreProductFactory.php
 namespace Database\Factories;
 
 use App\Infrastructure\Persistence\Models\Store;

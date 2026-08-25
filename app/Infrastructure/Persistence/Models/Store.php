@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Store extends Model
 {
     use HasFactory;
+    
+    protected static function newFactory()
+    {
+        return \Database\Factories\StoreFactory::new();
+    }
 
     protected $table = 'stores';
 

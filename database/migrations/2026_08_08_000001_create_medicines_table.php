@@ -15,11 +15,12 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('generic_name')->nullable();
+             $table->string('category')->nullable();
             $table->string('weight')->nullable();
             $table->decimal('suggestion_price', 12, 2)->nullable();
             $table->string('type')->nullable();
             $table->text('description')->nullable();
-            $table->foreignId('company_id')->constrained('medicine_companies')->cascadeOnDelete();
+            $table->foreignId('company_id')->constrained('medicine_companies')->cascadeOnDelete()->nullable();
             $table->timestamps();
         });
     }

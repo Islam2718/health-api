@@ -4,28 +4,29 @@ namespace Tests\Feature;
 use App\Infrastructure\Persistence\Models\Store;
 use App\Infrastructure\Persistence\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use Laravel\Sanctum\Sanctum;
 
 class StoreApiTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, WithFaker;
 
     public function test_authenticated_user_can_create_store(): void
     {
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
 
-        $response = $this->actingAs($user)
-            ->postJson('/api/stores', [
-                'store_name' => 'Health Pharmacy',
-                'store_address' => '123 Main Street, Dhaka',
-                'trade_license_no' => 'TL-2024-001',
-                'phone' => '+8801234567890',
-                'email' => 'health@pharmacy.com',
-                'description' => 'Our first pharmacy store',
-            ]);
+        $response = $this->postJson('/api/stores', [
+            'store_name' => 'Health Pharmacy',
+            'store_address' => '123 Main Street, Dhaka',
+            'trade_license_no' => 'TL-2024-001',
+            'phone' => '+8801234567890',
+            'email' => 'health@pharmacy.com',
+            'description' => 'Our first pharmacy store',
+        ]);
 
-        $response
-            ->assertCreated()
+        $response->assertStatus(201)
             ->assertJsonPath('data.store_name', 'Health Pharmacy')
             ->assertJsonPath('data.store_address', '123 Main Street, Dhaka')
             ->assertJsonPath('data.trade_license_no', 'TL-2024-001');
@@ -40,25 +41,22 @@ class StoreApiTest extends TestCase
     public function test_store_creation_fails_with_duplicate_trade_license(): void
     {
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
 
-        // Create first store
         Store::factory()->create([
             'user_id' => $user->id,
             'trade_license_no' => 'TL-2024-001',
         ]);
 
-        // Try to create another store with same license
-        $response = $this->actingAs($user)
-            ->postJson('/api/stores', [
-                'store_name' => 'Another Pharmacy',
-                'store_address' => '456 Another Street, Dhaka',
-                'trade_license_no' => 'TL-2024-001',
-                'phone' => '+8801234567891',
-                'email' => 'another@pharmacy.com',
-            ]);
+        $response = $this->postJson('/api/stores', [
+            'store_name' => 'Another Pharmacy',
+            'store_address' => '456 Another Street, Dhaka',
+            'trade_license_no' => 'TL-2024-001',
+            'phone' => '+8801234567891',
+            'email' => 'another@pharmacy.com',
+        ]);
 
-        $response
-            ->assertStatus(422)
+        $response->assertStatus(422)
             ->assertJsonValidationErrors(['trade_license_no']);
     }
 
@@ -66,18 +64,14 @@ class StoreApiTest extends TestCase
     {
         $user = User::factory()->create();
         $anotherUser = User::factory()->create();
+        Sanctum::actingAs($user);
 
-        // Create stores for current user
         Store::factory()->count(3)->create(['user_id' => $user->id]);
-        
-        // Create store for another user
         Store::factory()->create(['user_id' => $anotherUser->id]);
 
-        $response = $this->actingAs($user)
-            ->getJson('/api/stores');
+        $response = $this->getJson('/api/stores');
 
-        $response
-            ->assertOk()
+        $response->assertStatus(200)
             ->assertJsonStructure([
                 'data' => [
                     '*' => [
@@ -102,13 +96,13 @@ class StoreApiTest extends TestCase
                 ]
             ]);
 
-        // Should only see current user's stores
         $this->assertEquals(3, count($response->json('data')));
     }
 
     public function test_user_can_search_stores_by_name(): void
     {
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
 
         Store::factory()->create([
             'user_id' => $user->id,
@@ -120,11 +114,9 @@ class StoreApiTest extends TestCase
             'store_name' => 'Wellness Store',
         ]);
 
-        $response = $this->actingAs($user)
-            ->getJson('/api/stores?search=Health');
+        $response = $this->getJson('/api/stores?search=Health');
 
-        $response
-            ->assertOk()
+        $response->assertStatus(200)
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.store_name', 'Health Pharmacy');
     }
@@ -132,13 +124,13 @@ class StoreApiTest extends TestCase
     public function test_user_can_view_specific_store(): void
     {
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
+        
         $store = Store::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)
-            ->getJson("/api/stores/{$store->id}");
+        $response = $this->getJson("/api/stores/{$store->id}");
 
-        $response
-            ->assertOk()
+        $response->assertStatus(200)
             ->assertJsonPath('data.id', $store->id)
             ->assertJsonPath('data.store_name', $store->store_name);
     }
@@ -147,10 +139,11 @@ class StoreApiTest extends TestCase
     {
         $user = User::factory()->create();
         $anotherUser = User::factory()->create();
+        Sanctum::actingAs($user);
+        
         $store = Store::factory()->create(['user_id' => $anotherUser->id]);
 
-        $response = $this->actingAs($user)
-            ->getJson("/api/stores/{$store->id}");
+        $response = $this->getJson("/api/stores/{$store->id}");
 
         $response->assertNotFound();
     }
@@ -158,23 +151,23 @@ class StoreApiTest extends TestCase
     public function test_user_can_update_own_store(): void
     {
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
+        
         $store = Store::factory()->create([
             'user_id' => $user->id,
             'store_name' => 'Old Name',
         ]);
 
-        $response = $this->actingAs($user)
-            ->putJson("/api/stores/{$store->id}", [
-                'store_name' => 'Updated Pharmacy',
-                'store_address' => 'Updated Address, Dhaka',
-                'trade_license_no' => 'TL-2024-002',
-                'phone' => '+8801234567899',
-                'email' => 'updated@pharmacy.com',
-                'is_active' => false,
-            ]);
+        $response = $this->putJson("/api/stores/{$store->id}", [
+            'store_name' => 'Updated Pharmacy',
+            'store_address' => 'Updated Address, Dhaka',
+            'trade_license_no' => 'TL-2024-002',
+            'phone' => '+8801234567899',
+            'email' => 'updated@pharmacy.com',
+            'is_active' => false,
+        ]);
 
-        $response
-            ->assertOk()
+        $response->assertStatus(200)
             ->assertJsonPath('data.store_name', 'Updated Pharmacy')
             ->assertJsonPath('data.is_active', false);
 
@@ -189,14 +182,15 @@ class StoreApiTest extends TestCase
     {
         $owner = User::factory()->create();
         $otherUser = User::factory()->create();
+        Sanctum::actingAs($otherUser);
+        
         $store = Store::factory()->create(['user_id' => $owner->id]);
 
-        $response = $this->actingAs($otherUser)
-            ->putJson("/api/stores/{$store->id}", [
-                'store_name' => 'Hacked Store',
-                'store_address' => 'Hacked Address',
-                'trade_license_no' => 'TL-HACKED',
-            ]);
+        $response = $this->putJson("/api/stores/{$store->id}", [
+            'store_name' => 'Hacked Store',
+            'store_address' => 'Hacked Address',
+            'trade_license_no' => 'TL-HACKED',
+        ]);
 
         $response->assertNotFound();
     }
@@ -204,13 +198,13 @@ class StoreApiTest extends TestCase
     public function test_user_can_delete_own_store(): void
     {
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
+        
         $store = Store::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)
-            ->deleteJson("/api/stores/{$store->id}");
+        $response = $this->deleteJson("/api/stores/{$store->id}");
 
-        $response
-            ->assertOk()
+        $response->assertStatus(200)
             ->assertJsonPath('message', 'Store deleted successfully');
 
         $this->assertDatabaseMissing('stores', ['id' => $store->id]);
@@ -220,10 +214,11 @@ class StoreApiTest extends TestCase
     {
         $owner = User::factory()->create();
         $otherUser = User::factory()->create();
+        Sanctum::actingAs($otherUser);
+        
         $store = Store::factory()->create(['user_id' => $owner->id]);
 
-        $response = $this->actingAs($otherUser)
-            ->deleteJson("/api/stores/{$store->id}");
+        $response = $this->deleteJson("/api/stores/{$store->id}");
 
         $response->assertNotFound();
     }

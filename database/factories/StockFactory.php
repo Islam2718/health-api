@@ -1,5 +1,5 @@
 <?php
-
+// database/factories/StockFactory.php
 namespace Database\Factories;
 
 use App\Infrastructure\Persistence\Models\Stock;
@@ -14,7 +14,8 @@ class StockFactory extends Factory
     {
         $quantity = $this->faker->numberBetween(10, 200);
         $unitPrice = $this->faker->randomFloat(2, 10, 100);
-        $transactionTypes = ['purchase', 'sale', 'return', 'adjustment'];
+        // শুধু purchase এবং sale ব্যবহার করছি কারণ টেস্টে এগুলো ইউজ করা হয়েছে
+        $transactionTypes = ['purchase', 'sale'];
         
         return [
             'store_product_id' => StoreProduct::factory(),

@@ -9,6 +9,11 @@ class StoreProduct extends Model
 {
     use HasFactory;
 
+    protected static function newFactory()
+    {
+        return \Database\Factories\StoreProductFactory::new();
+    }    
+
     protected $table = 'store_products';
 
     protected $fillable = [
