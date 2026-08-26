@@ -9,10 +9,11 @@ use App\Domain\Interfaces\StoreProductRepositoryInterface;
 use App\Domain\Interfaces\StoreRepositoryInterface;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Store\StoreProductRequest;
-use App\Http\Resources\Store\StoreProductResource;
+use App\Http\Resources\StoreProductResource;
 use App\Http\Resources\Store\StoreProductCollection;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 class StoreProductController extends Controller
 {
@@ -20,15 +21,15 @@ class StoreProductController extends Controller
         private StoreProductRepositoryInterface $storeProductRepository,
         private StoreRepositoryInterface $storeRepository,
         private AddProductToStoreUseCase $addProductUseCase,
-        // private UpdateStoreProductUseCase $updateProductUseCase,
-        // private RemoveProductFromStoreUseCase $removeProductUseCase
+        private UpdateStoreProductUseCase $updateProductUseCase,
+        private RemoveProductFromStoreUseCase $removeProductUseCase
     ) {}
 
     public function index(Request $request, int $storeId): JsonResponse
     {
         // Check if store belongs to user
         $store = $this->storeRepository->findById($storeId);
-        if (!$store || $store->user_id !== auth()->id()) {
+        if (!$store || $store->user_id !== Auth::id()) {
             return response()->json([
                 'message' => 'Store not found or unauthorized'
             ], 404);
@@ -36,7 +37,7 @@ class StoreProductController extends Controller
 
         $filters = $request->only(['search', 'is_active', 'low_stock', 'per_page']);
         $products = $this->storeProductRepository->getAll($storeId, $filters);
-        
+
         return response()->json([
             'data' => StoreProductResource::collection($products),
             'meta' => [
@@ -52,7 +53,7 @@ class StoreProductController extends Controller
     {
         // Check if store belongs to user
         $store = $this->storeRepository->findById($storeId);
-        if (!$store || $store->user_id !== auth()->id()) {
+        if (!$store || $store->user_id !== Auth::id()) {
             return response()->json([
                 'message' => 'Store not found or unauthorized'
             ], 403);
@@ -70,7 +71,7 @@ class StoreProductController extends Controller
         );
 
         $product = $this->addProductUseCase->execute($dto);
-        
+
         return response()->json([
             'message' => 'Product added to store successfully',
             'data' => new StoreProductResource($product)
@@ -81,7 +82,7 @@ class StoreProductController extends Controller
     {
         // Check if store belongs to user
         $store = $this->storeRepository->findById($storeId);
-        if (!$store || $store->user_id !== auth()->id()) {
+        if (!$store || $store->user_id !== Auth::id()) {
             return response()->json([
                 'message' => 'Store not found or unauthorized'
             ], 403);
@@ -103,7 +104,7 @@ class StoreProductController extends Controller
     {
         // Check if store belongs to user
         $store = $this->storeRepository->findById($storeId);
-        if (!$store || $store->user_id !== auth()->id()) {
+        if (!$store || $store->user_id !== Auth::id()) {
             return response()->json([
                 'message' => 'Store not found or unauthorized'
             ], 403);
@@ -128,7 +129,7 @@ class StoreProductController extends Controller
         );
 
         $updatedProduct = $this->updateProductUseCase->execute($dto);
-        
+
         return response()->json([
             'message' => 'Product updated successfully',
             'data' => new StoreProductResource($updatedProduct)
@@ -139,7 +140,7 @@ class StoreProductController extends Controller
     {
         // Check if store belongs to user
         $store = $this->storeRepository->findById($storeId);
-        if (!$store || $store->user_id !== auth()->id()) {
+        if (!$store || $store->user_id !== Auth::id()) {
             return response()->json([
                 'message' => 'Store not found or unauthorized'
             ], 403);
@@ -153,7 +154,7 @@ class StoreProductController extends Controller
         }
 
         $this->removeProductUseCase->execute($productId);
-        
+
         return response()->json([
             'message' => 'Product removed from store successfully'
         ]);

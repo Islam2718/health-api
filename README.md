@@ -410,7 +410,40 @@ Run tests with:
 
 ```bash
 composer test
+# Or run the Laravel test suite directly:
+php artisan test
 ```
+
+The stock and store-product feature tests use an isolated database and create
+their required medicine company and category records during test setup.
+
+## Pharmacy Inventory APIs
+
+Store product and stock endpoints require Sanctum authentication and are
+restricted to the authenticated store owner.
+
+### Store product endpoints
+
+- GET /api/stores/{store}/products
+- POST /api/stores/{store}/products
+- GET /api/stores/{store}/products/{product}
+- PUT /api/stores/{store}/products/{product}
+- DELETE /api/stores/{store}/products/{product}
+
+The product listing supports `search`, `is_active`, `low_stock`, and `per_page`
+query parameters.
+
+### Stock endpoints
+
+- GET /api/stores/{store}/stocks
+- POST /api/stores/{store}/stocks
+- GET /api/stores/{store}/stocks/{stock}
+- GET /api/stores/{store}/products/{product}/stocks
+- GET /api/stores/{store}/stocks/summary
+
+Stock transactions support `purchase` and `sale` types. Product stock is
+calculated as total purchases minus total sales. Stock responses serialize
+dates as ISO 8601 timestamps and monetary values with two decimal places.
 
 ## Module Roadmap
 
