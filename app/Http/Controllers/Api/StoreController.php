@@ -11,7 +11,7 @@ use App\Http\Requests\Store\StoreRequest;
 use App\Http\Resources\StoreResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-// auth 
+// auth
 use Illuminate\Support\Facades\Auth;
 
 class StoreController extends Controller
@@ -23,14 +23,11 @@ class StoreController extends Controller
         private DeleteStoreUseCase $deleteStoreUseCase
     ) {}
 
-    /**
-     * Display a listing of the stores for the authenticated user.
-     */
     public function index(Request $request): JsonResponse
     {
         $filters = $request->only(['search', 'is_active', 'per_page']);
         $stores = $this->storeRepository->getAll(Auth::id(), $filters);
-        
+
         return response()->json([
             'data' => StoreResource::collection($stores),
             'meta' => [
@@ -42,9 +39,6 @@ class StoreController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created store.
-     */
     public function store(StoreRequest $request): JsonResponse
     {
         $dto = new StoreDTO(
@@ -60,20 +54,17 @@ class StoreController extends Controller
         );
 
         $store = $this->createStoreUseCase->execute($dto);
-        
+
         return response()->json([
             'message' => 'Store created successfully',
             'data' => new StoreResource($store)
         ], 201);
     }
 
-    /**
-     * Display the specified store.
-     */
     public function show(int $id): JsonResponse
     {
         $store = $this->storeRepository->findById($id);
-        
+
         if (!$store || $store->user_id !== Auth::id()) {
             return response()->json([
                 'message' => 'Store not found or unauthorized'
@@ -85,13 +76,10 @@ class StoreController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified store.
-     */
     public function update(StoreRequest $request, int $id): JsonResponse
     {
         $store = $this->storeRepository->findById($id);
-        
+
         if (!$store || $store->user_id !== Auth::id()) {
             return response()->json([
                 'message' => 'Store not found or unauthorized'
@@ -111,20 +99,17 @@ class StoreController extends Controller
         );
 
         $updatedStore = $this->updateStoreUseCase->execute($dto);
-        
+
         return response()->json([
             'message' => 'Store updated successfully',
             'data' => new StoreResource($updatedStore)
         ]);
     }
 
-    /**
-     * Remove the specified store.
-     */
     public function destroy(int $id): JsonResponse
     {
         $store = $this->storeRepository->findById($id);
-        
+
         if (!$store || $store->user_id !== Auth::id()) {
             return response()->json([
                 'message' => 'Store not found or unauthorized'
@@ -132,7 +117,7 @@ class StoreController extends Controller
         }
 
         $this->deleteStoreUseCase->execute($id);
-        
+
         return response()->json([
             'message' => 'Store deleted successfully'
         ]);
