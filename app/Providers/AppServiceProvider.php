@@ -20,6 +20,10 @@ use App\Domain\Interfaces\StoreProductRepositoryInterface;
 use App\Infrastructure\Persistence\Repositories\StoreProductRepository;
 use App\Domain\Interfaces\StockRepositoryInterface;
 use App\Infrastructure\Persistence\Repositories\StockRepository;
+// rate limitting use 
+// use Illuminate\Cache\RateLimiting\Limit;
+// use Illuminate\Support\Facades\RateLimiter;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -61,6 +65,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        //// rate limitting implement 
+        // RateLimiter::for('api', function (Request $request) {
+        //     return Limit::perMinute(120)->by($request->ip());
+        // });        
     }
 }

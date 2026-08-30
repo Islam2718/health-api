@@ -50,6 +50,10 @@ Route::get('blood-donors/public/{id}', [BloodDonorController::class, 'publicShow
 Route::get('/ambulances/public', [AmbulanceController::class, 'publicIndex']);
 Route::get('/ambulances/public/{id}', [AmbulanceController::class, 'publicShow']);
 
+// Route::middleware('throttle:api')->group(function () {
+//  Route::get('/posts', [PostController::class, 'index']);
+// });
+
 Route::middleware('auth:sanctum')->group(function () {
     // Posts: authenticated actions
     Route::post('posts', [PostController::class, 'store']);
@@ -85,11 +89,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // store 
     // Store routes
     Route::apiResource('stores', StoreController::class);
-    
+
     // Store Product routes
     Route::prefix('stores/{storeId}')->group(function () {
         Route::apiResource('products', StoreProductController::class);
-        
+
         // Stock routes
         Route::prefix('stocks')->group(function () {
             Route::get('/', [StoreStockController::class, 'index']);
@@ -97,8 +101,8 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/summary', [StoreStockController::class, 'getStockSummary']);
             Route::get('/{stockId}', [StoreStockController::class, 'show']);
         });
-        
+
         // Product stock history
         Route::get('/products/{productId}/stocks', [StoreStockController::class, 'getProductStock']);
-    });    
+    });
 });
