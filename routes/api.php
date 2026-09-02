@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\EducationController;
 use App\Http\Controllers\Api\HospitalController;
 use App\Http\Controllers\Api\MedicineCompanyController;
 use App\Http\Controllers\Api\MedicineController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\ProfessionalExperienceController;
 use App\Http\Controllers\Api\StoreController;
@@ -80,8 +81,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('ambulances/{id}', [AmbulanceController::class, 'destroy']);
 
     Route::apiResource('stores', StoreController::class);
+    Route::post('stores/{storeId}/orders', [OrderController::class, 'store']);
+    Route::get('my-orders', [OrderController::class, 'myOrders']);
+    Route::get('my-orders/{orderId}', [OrderController::class, 'showMine']);
 
     Route::prefix('stores/{storeId}')->group(function () {
+        Route::get('orders', [OrderController::class, 'index']);
+        Route::get('orders/{orderId}', [OrderController::class, 'show']);
+        Route::patch('orders/{orderId}/status', [OrderController::class, 'updateStatus']);
         Route::apiResource('products', StoreProductController::class);
 
         Route::prefix('stocks')->group(function () {
