@@ -185,6 +185,97 @@ Public doctor listings support `designation`, `department`, `address`,
 `search`, `random`, and `per_page` query parameters. Store product listings
 support `search`, `is_active`, `low_stock`, and `per_page`.
 
+## Medicine Orders
+
+The pharmacy order module creates medicine orders for a store. An order may
+belong to a registered customer or may be a guest order:
+
+- `orders.user_id` is nullable and represents the optional customer user ID.
+- `customer_id` may be sent when the customer already exists in `users`.
+- If `customer_id` is omitted, the order is created without a customer.
+- Customer name and phone are not accepted, stored, or returned by the order
+  API.
+- The authenticated user creating an order must own the selected store.
+- `payment_method` defaults to `CASH` when it is omitted.
+- Product prices are read from the store product and copied into order items,
+  preserving the price used at purchase time.
+- Order creation checks the current available stock, but does not yet create a
+  `sale` stock transaction. Inventory deduction belongs in the future order
+  confirmation/payment workflow.
+
+### Order endpoints
+
+```text
+POST  /api/stores/{storeId}/orders
+GET   /api/my-orders
+GET   /api/my-orders/{orderId}
+GET   /api/stores/{storeId}/orders
+GET   /api/stores/{storeId}/orders/{orderId}
+PATCH /api/stores/{storeId}/orders/{orderId}/status
+```
+
+The customer order endpoints return only orders linked to the authenticated
+user. Store order endpoints are restricted to the owner of that store. Store
+order listings accept `status` and `per_page` query parameters.
+
+### Create an order
+
+Registered customer order:
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/stores/3/orders \
+  -H "Authorization: Bearer <store-owner-token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customer_id": 39,
+    "payment_method": "CASH",
+    "shipping_address": "Dhaka",
+    "items": [
+      {"store_product_id": 3, "quantity": 2}
+    ]
+  }'
+```
+
+Guest order:
+
+```json
+{
+  "items": [
+    {"store_product_id": 3, "quantity": 1}
+  ],
+  "shipping_address": "Dhaka",
+  "notes": "Deliver during business hours"
+}
+```
+
+Each item must reference an active `store_product_id` belonging to the
+selected store. The requested quantity must be available. Optional financial
+fields are `discount` and `delivery_fee`; the server calculates `subtotal`
+and `total`. The default order status is `pending`, and the default payment
+status is `pending`.
+
+### Order database changes
+
+Order data is stored in `orders` and `order_items`. The migration sequence is:
+
+```text
+2026_09_03_000000_create_orders_and_order_items_tables
+2026_09_03_000001_update_orders_for_optional_customers
+```
+
+After deploying these files to an existing environment, run migrations before
+calling the order endpoint:
+
+```bash
+php artisan migrate --force
+php artisan optimize:clear
+php artisan migrate:status
+```
+
+The compatibility migration makes `orders.user_id` nullable, sets the payment
+default to `CASH`, and removes the old `contact_phone` column when it exists.
+Never use `migrate:fresh` on a production database.
+
 ### Authentication examples
 
 Register or log in, then use the returned token for protected requests:
