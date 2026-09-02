@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Store\StoreOrderRequest;
 use App\Http\Resources\OrderResource;
 use App\Infrastructure\Persistence\Models\Order;
+use App\Infrastructure\Persistence\Models\Stock;
 use App\Infrastructure\Persistence\Models\Store;
 use App\Infrastructure\Persistence\Models\StoreProduct;
 use Illuminate\Http\JsonResponse;
@@ -72,6 +73,18 @@ class OrderController extends Controller
             ]);
 
             $order->items()->createMany($items->all());
+
+            $items->each(function (array $item) use ($order): void {
+                Stock::query()->create([
+                    'store_product_id' => $item['store_product_id'],
+                    'quantity' => $item['quantity'],
+                    'transaction_type' => 'sale',
+                    'unit_price' => $item['unit_price'],
+                    'total_price' => $item['total_price'],
+                    'remarks' => "Sale from order {$order->order_number}",
+                    'transaction_date' => $order->placed_at->toDateString(),
+                ]);
+            });
 
             return $order;
         });

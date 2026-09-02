@@ -39,6 +39,17 @@ class OrderApiTest extends TestCase
 
         $this->assertDatabaseCount('users', 2);
         $this->assertDatabaseHas('orders', ['user_id' => $customer->id, 'store_id' => $store->id]);
+        $this->assertDatabaseHas('stocks', [
+            'store_product_id' => $product->id,
+            'quantity' => 2,
+            'transaction_type' => 'sale',
+            'unit_price' => 10,
+            'total_price' => 20,
+        ]);
+
+        $this->getJson("/api/stores/{$store->id}/products/{$product->id}")
+            ->assertOk()
+            ->assertJsonPath('data.current_stock', 98);
     }
 
     public function test_order_can_be_created_without_a_customer(): void
