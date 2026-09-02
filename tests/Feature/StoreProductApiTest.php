@@ -3,6 +3,7 @@ namespace Tests\Feature;
 
 use App\Infrastructure\Persistence\Models\Store;
 use App\Infrastructure\Persistence\Models\StoreProduct;
+use App\Infrastructure\Persistence\Models\Stock;
 use App\Infrastructure\Persistence\Models\Medicine;
 use App\Infrastructure\Persistence\Models\MedicineCompany;
 use App\Infrastructure\Persistence\Models\User;
@@ -169,6 +170,39 @@ class StoreProductApiTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonPath('data.id', $product->id)
             ->assertJsonPath('data.store_id', $store->id);
+    }
+
+    public function test_product_stock_excludes_sold_quantity_in_list_and_details(): void
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $store = Store::factory()->create(['user_id' => $user->id]);
+        $product = StoreProduct::factory()->create(['store_id' => $store->id]);
+
+        Stock::factory()->create([
+            'store_product_id' => $product->id,
+            'quantity' => 100,
+            'transaction_type' => 'purchase',
+        ]);
+        Stock::factory()->create([
+            'store_product_id' => $product->id,
+            'quantity' => 5,
+            'transaction_type' => 'sale',
+        ]);
+        Stock::factory()->create([
+            'store_product_id' => $product->id,
+            'quantity' => 10,
+            'transaction_type' => 'sale',
+        ]);
+
+        $this->getJson("/api/stores/{$store->id}/products")
+            ->assertOk()
+            ->assertJsonPath('data.0.current_stock', 85);
+
+        $this->getJson("/api/stores/{$store->id}/products/{$product->id}")
+            ->assertOk()
+            ->assertJsonPath('data.current_stock', 85);
     }
 
     public function test_cannot_view_product_from_other_users_store(): void

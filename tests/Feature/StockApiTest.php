@@ -94,6 +94,41 @@ class StockApiTest extends TestCase
             ->assertJsonPath('data.transaction_type', 'sale')
             ->assertJsonPath('data.unit_price', '75.00')
             ->assertJsonPath('data.total_price', '750.00');
+
+        $response->assertJsonPath('current_stock', 90);
+    }
+
+    public function test_sale_cannot_exceed_current_stock(): void
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $store = Store::factory()->create(['user_id' => $user->id]);
+        $medicine = Medicine::factory()->create();
+        $product = StoreProduct::factory()->create([
+            'store_id' => $store->id,
+            'medicine_id' => $medicine->id,
+        ]);
+
+        Stock::factory()->create([
+            'store_product_id' => $product->id,
+            'quantity' => 100,
+            'transaction_type' => 'purchase',
+        ]);
+
+        $response = $this->postJson("/api/stores/{$store->id}/stocks", [
+            'store_product_id' => $product->id,
+            'quantity' => 101,
+            'transaction_type' => 'sale',
+            'unit_price' => 75.00,
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['quantity']);
+        $this->assertDatabaseMissing('stocks', [
+            'store_product_id' => $product->id,
+            'transaction_type' => 'sale',
+        ]);
     }
 
     public function test_cannot_add_stock_to_product_in_other_users_store(): void

@@ -77,10 +77,12 @@ class StoreStockController extends Controller
         );
 
         $stock = $this->addStockUseCase->execute($dto);
+        $currentStock = $this->stockRepository->getCurrentStock($request->store_product_id);
         
         return response()->json([
             'message' => 'Stock added successfully',
-            'data' => new StockResource($stock)
+            'data' => new StockResource($stock),
+            'current_stock' => $currentStock,
         ], 201);
     }
 
