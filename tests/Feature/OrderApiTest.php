@@ -39,10 +39,9 @@ class OrderApiTest extends TestCase
 
         $this->assertDatabaseCount('users', 2);
         $this->assertDatabaseHas('orders', ['user_id' => $customer->id, 'store_id' => $store->id]);
-        $this->assertDatabaseHas('stocks', [
+        $this->assertDatabaseHas('order_items', [
             'store_product_id' => $product->id,
             'quantity' => 2,
-            'transaction_type' => 'sale',
             'unit_price' => 10,
             'total_price' => 20,
         ]);

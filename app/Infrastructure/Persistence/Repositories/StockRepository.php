@@ -2,6 +2,7 @@
 namespace App\Infrastructure\Persistence\Repositories;
 
 use App\Domain\Interfaces\StockRepositoryInterface;
+use App\Infrastructure\Persistence\Models\OrderItem;
 use App\Infrastructure\Persistence\Models\Stock;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -49,9 +50,7 @@ class StockRepository implements StockRepositoryInterface
     {
         return Stock::where('store_product_id', $storeProductId)
             ->where('transaction_type', 'purchase')
-            ->sum('quantity') - 
-            Stock::where('store_product_id', $storeProductId)
-            ->where('transaction_type', 'sale')
+            ->sum('quantity') - OrderItem::where('store_product_id', $storeProductId)
             ->sum('quantity');
     }
 

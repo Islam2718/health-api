@@ -4,6 +4,7 @@ namespace Tests\Feature;
 use App\Infrastructure\Persistence\Models\Store;
 use App\Infrastructure\Persistence\Models\StoreProduct;
 use App\Infrastructure\Persistence\Models\Stock;
+use App\Infrastructure\Persistence\Models\Order;
 use App\Infrastructure\Persistence\Models\Medicine;
 use App\Infrastructure\Persistence\Models\MedicineCompany;
 use App\Infrastructure\Persistence\Models\User;
@@ -185,15 +186,27 @@ class StoreProductApiTest extends TestCase
             'quantity' => 100,
             'transaction_type' => 'purchase',
         ]);
-        Stock::factory()->create([
-            'store_product_id' => $product->id,
-            'quantity' => 5,
-            'transaction_type' => 'sale',
+        $order = Order::query()->create([
+            'store_id' => $store->id,
+            'order_number' => 'TEST-ORDER-'.uniqid(),
         ]);
-        Stock::factory()->create([
-            'store_product_id' => $product->id,
-            'quantity' => 10,
-            'transaction_type' => 'sale',
+        $order->items()->createMany([
+            [
+                'store_product_id' => $product->id,
+                'medicine_id' => $product->medicine_id,
+                'medicine_name' => $product->medicine->name,
+                'quantity' => 5,
+                'unit_price' => 10,
+                'total_price' => 50,
+            ],
+            [
+                'store_product_id' => $product->id,
+                'medicine_id' => $product->medicine_id,
+                'medicine_name' => $product->medicine->name,
+                'quantity' => 10,
+                'unit_price' => 10,
+                'total_price' => 100,
+            ],
         ]);
 
         $this->getJson("/api/stores/{$store->id}/products")

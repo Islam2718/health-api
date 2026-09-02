@@ -50,11 +50,14 @@ class StoreProduct extends Model
         return $this->hasMany(Stock::class);
     }
 
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
     public function getCurrentStockAttribute()
     {
-        return $this->stocks()->where('transaction_type', 'purchase')
-            ->sum('quantity') - 
-            $this->stocks()->where('transaction_type', 'sale')
-            ->sum('quantity');
+        return $this->stocks()->where('transaction_type', 'purchase')->sum('quantity')
+            - $this->orderItems()->sum('quantity');
     }
 }

@@ -95,7 +95,7 @@ class StockApiTest extends TestCase
             ->assertJsonPath('data.unit_price', '75.00')
             ->assertJsonPath('data.total_price', '750.00');
 
-        $response->assertJsonPath('current_stock', 90);
+        $response->assertJsonPath('current_stock', 100);
     }
 
     public function test_sale_cannot_exceed_current_stock(): void
@@ -334,7 +334,7 @@ class StockApiTest extends TestCase
         $response = $this->getJson("/api/stores/{$store->id}/products/{$product->id}/stocks");
 
         $response->assertStatus(200)
-            ->assertJsonPath('current_stock', 120);
+            ->assertJsonPath('current_stock', 150);
     }
 
     public function test_user_can_view_stock_summary(): void
