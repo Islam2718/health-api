@@ -16,7 +16,7 @@ class OrderApiTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_order_reuses_existing_customer_by_phone(): void
+    public function test_order_can_use_an_existing_customer_id(): void
     {
         $owner = User::factory()->create();
         $customer = User::factory()->create(['phone' => '01700000000']);
@@ -25,23 +25,23 @@ class OrderApiTest extends TestCase
         Sanctum::actingAs($owner);
 
         $response = $this->postJson("/api/stores/{$store->id}/orders", [
-            'customer_name' => 'Updated Name',
-            'customer_phone' => $customer->phone,
+            'customer_id' => $customer->id,
             'items' => [
                 ['store_product_id' => $product->id, 'quantity' => 2],
             ],
         ]);
 
         $response->assertCreated()
-            ->assertJsonPath('data.customer.id', $customer->id)
+            ->assertJsonPath('data.customer_id', $customer->id)
             ->assertJsonPath('data.items.0.medicine_name', $product->medicine->name)
-            ->assertJsonPath('data.total', '20.00');
+            ->assertJsonPath('data.total', '20.00')
+            ->assertJsonPath('data.payment_method', 'CASH');
 
         $this->assertDatabaseCount('users', 2);
         $this->assertDatabaseHas('orders', ['user_id' => $customer->id, 'store_id' => $store->id]);
     }
 
-    public function test_order_creates_customer_when_phone_does_not_exist(): void
+    public function test_order_can_be_created_without_a_customer(): void
     {
         $owner = User::factory()->create();
         $store = Store::factory()->create(['user_id' => $owner->id]);
@@ -49,18 +49,21 @@ class OrderApiTest extends TestCase
         Sanctum::actingAs($owner);
 
         $response = $this->postJson("/api/stores/{$store->id}/orders", [
-            'customer_name' => 'New Customer',
-            'customer_phone' => '01800000000',
             'items' => [
                 ['store_product_id' => $product->id, 'quantity' => 1],
             ],
         ]);
 
-        $response->assertCreated()->assertJsonPath('data.customer.name', 'New Customer');
-        $this->assertDatabaseHas('users', [
-            'name' => 'New Customer',
-            'phone' => '01800000000',
-            'type' => 'USER',
+        $response->assertCreated()
+            ->assertJsonPath('data.customer_id', null)
+            ->assertJsonMissingPath('data.customer.name')
+            ->assertJsonMissingPath('data.customer.phone')
+            ->assertJsonPath('data.payment_method', 'CASH');
+
+        $this->assertDatabaseHas('orders', [
+            'user_id' => null,
+            'store_id' => $store->id,
+            'payment_method' => 'CASH',
         ]);
     }
 

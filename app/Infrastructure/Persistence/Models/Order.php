@@ -23,7 +23,6 @@ class Order extends Model
         'delivery_fee',
         'total',
         'shipping_address',
-        'contact_phone',
         'notes',
         'placed_at',
     ];

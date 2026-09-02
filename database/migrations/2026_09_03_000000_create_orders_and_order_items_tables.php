@@ -10,18 +10,17 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('store_id')->constrained()->cascadeOnDelete();
             $table->string('order_number')->unique();
             $table->string('status')->default('pending');
             $table->string('payment_status')->default('pending');
-            $table->string('payment_method')->nullable();
+            $table->string('payment_method')->default('CASH');
             $table->decimal('subtotal', 10, 2)->default(0);
             $table->decimal('discount', 10, 2)->default(0);
             $table->decimal('delivery_fee', 10, 2)->default(0);
             $table->decimal('total', 10, 2)->default(0);
             $table->text('shipping_address')->nullable();
-            $table->string('contact_phone')->nullable();
             $table->text('notes')->nullable();
             $table->timestamp('placed_at')->nullable();
             $table->timestamps();

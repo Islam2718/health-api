@@ -8,7 +8,6 @@ use App\Http\Resources\OrderResource;
 use App\Infrastructure\Persistence\Models\Order;
 use App\Infrastructure\Persistence\Models\Store;
 use App\Infrastructure\Persistence\Models\StoreProduct;
-use App\Infrastructure\Persistence\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -26,15 +25,6 @@ class OrderController extends Controller
 
         $data = $request->validated();
         $order = DB::transaction(function () use ($data, $storeId): Order {
-            $customer = User::query()->firstOrCreate(
-                ['phone' => $data['customer_phone']],
-                [
-                    'name' => $data['customer_name'],
-                    'password' => Str::random(32),
-                    'type' => 'USER',
-                ]
-            );
-
             $items = collect($data['items'])->map(function (array $item) use ($storeId): array {
                 $product = StoreProduct::query()
                     ->with('medicine')
@@ -68,16 +58,15 @@ class OrderController extends Controller
             $deliveryFee = (float) ($data['delivery_fee'] ?? 0);
 
             $order = Order::query()->create([
-                'user_id' => $customer->id,
+                'user_id' => $data['customer_id'] ?? null,
                 'store_id' => $storeId,
                 'order_number' => 'ORD-'.strtoupper(Str::random(10)),
-                'payment_method' => $data['payment_method'] ?? null,
+                'payment_method' => strtoupper($data['payment_method'] ?? 'CASH'),
                 'subtotal' => $subtotal,
                 'discount' => $discount,
                 'delivery_fee' => $deliveryFee,
                 'total' => $subtotal - $discount + $deliveryFee,
                 'shipping_address' => $data['shipping_address'] ?? null,
-                'contact_phone' => $data['customer_phone'],
                 'notes' => $data['notes'] ?? null,
                 'placed_at' => now(),
             ]);
