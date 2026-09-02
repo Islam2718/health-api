@@ -59,7 +59,7 @@ class OrderController extends Controller
 
             $order = Order::query()->create([
                 'user_id' => $data['customer_id'] ?? null,
-                'store_id' => $storeId,
+                'store_id' => $storeId, 
                 'order_number' => 'ORD-'.strtoupper(Str::random(10)),
                 'payment_method' => strtoupper($data['payment_method'] ?? 'CASH'),
                 'subtotal' => $subtotal,
