@@ -2,28 +2,23 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use App\Domain\Interfaces\AmbulanceRepositoryInterface;
+use App\Domain\Interfaces\BloodDonationRepositoryInterface;
 use App\Domain\Interfaces\MedicineCompanyRepository;
 use App\Domain\Interfaces\MedicineRepository;
+use App\Domain\Interfaces\StockRepositoryInterface;
+use App\Domain\Interfaces\StoreProductRepositoryInterface;
+use App\Domain\Interfaces\StoreRepositoryInterface;
 use App\Domain\Interfaces\UserRepository;
+use App\Infrastructure\Persistence\Repositories\AmbulanceRepository;
+use App\Infrastructure\Persistence\Repositories\BloodDonationRepository;
 use App\Infrastructure\Persistence\Repositories\MedicineCompanyRepositoryImpl;
 use App\Infrastructure\Persistence\Repositories\MedicineRepositoryImpl;
-use App\Infrastructure\Persistence\Repositories\UserRepositoryImpl;
-use App\Domain\Interfaces\BloodDonationRepositoryInterface;
-use App\Infrastructure\Persistence\Repositories\BloodDonationRepository;
-use App\Domain\Interfaces\AmbulanceRepositoryInterface;
-use App\Infrastructure\Persistence\Repositories\AmbulanceRepository;
-
-use App\Domain\Interfaces\StoreRepositoryInterface;
-use App\Infrastructure\Persistence\Repositories\StoreRepository;
-use App\Domain\Interfaces\StoreProductRepositoryInterface;
-use App\Infrastructure\Persistence\Repositories\StoreProductRepository;
-use App\Domain\Interfaces\StockRepositoryInterface;
 use App\Infrastructure\Persistence\Repositories\StockRepository;
-// rate limitting use 
-// use Illuminate\Cache\RateLimiting\Limit;
-// use Illuminate\Support\Facades\RateLimiter;
-
+use App\Infrastructure\Persistence\Repositories\StoreProductRepository;
+use App\Infrastructure\Persistence\Repositories\StoreRepository;
+use App\Infrastructure\Persistence\Repositories\UserRepositoryImpl;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -57,17 +52,11 @@ class AppServiceProvider extends ServiceProvider
         );
         $this->app->bind(StoreRepositoryInterface::class, StoreRepository::class);
         $this->app->bind(StoreProductRepositoryInterface::class, StoreProductRepository::class);
-        $this->app->bind(StockRepositoryInterface::class, StockRepository::class);      
+        $this->app->bind(StockRepositoryInterface::class, StockRepository::class);
     }
 
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
-    {
-        //// rate limitting implement 
-        // RateLimiter::for('api', function (Request $request) {
-        //     return Limit::perMinute(120)->by($request->ip());
-        // });        
-    }
+    public function boot(): void {}
 }

@@ -1,31 +1,30 @@
 <?php
-// routes/api.php
-use Illuminate\Support\Facades\Route;
+
+use App\Http\Controllers\Api\AmbulanceController;
+use App\Http\Controllers\Api\AppointmentController;
+use App\Http\Controllers\Api\AppointmentPrescriptionController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\ForgotPasswordController;
+use App\Http\Controllers\Api\BloodDonorController;
 use App\Http\Controllers\Api\ChamberController;
 use App\Http\Controllers\Api\DoctorController;
 use App\Http\Controllers\Api\DoctorScheduleController;
 use App\Http\Controllers\Api\EducationController;
 use App\Http\Controllers\Api\HospitalController;
-use App\Http\Controllers\Api\AppointmentController;
-use App\Http\Controllers\Api\AppointmentPrescriptionController;
 use App\Http\Controllers\Api\MedicineCompanyController;
 use App\Http\Controllers\Api\MedicineController;
-use App\Http\Controllers\Api\ProfessionalExperienceController;
-use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\PostController;
-use App\Http\Controllers\Api\BloodDonorController;
-use App\Http\Controllers\Api\AmbulanceController;
-
+use App\Http\Controllers\Api\ProfessionalExperienceController;
 use App\Http\Controllers\Api\StoreController;
 use App\Http\Controllers\Api\StoreProductController;
 use App\Http\Controllers\Api\StoreStockController;
+use App\Http\Controllers\Api\UserController;
+use Illuminate\Support\Facades\Route;
 
-Route::post('/login', [AuthController::class, 'login']);
-Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
-Route::middleware('auth:sanctum')->patch('/profile', [AuthController::class, 'updateProfile']);
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('login', [AuthController::class, 'login']);
+Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
+Route::middleware('auth:sanctum')->patch('profile', [AuthController::class, 'updateProfile']);
+Route::post('register', [AuthController::class, 'register']);
 
 Route::prefix('auth')->group(function () {
     Route::post('/otp-send', [ForgotPasswordController::class, 'sendOtp']);
@@ -47,15 +46,10 @@ Route::get('posts/{id}', [PostController::class, 'show']);
 Route::get('blood-donors/public', [BloodDonorController::class, 'publicIndex']);
 Route::get('blood-donors/public/{id}', [BloodDonorController::class, 'publicShow']);
 
-Route::get('/ambulances/public', [AmbulanceController::class, 'publicIndex']);
-Route::get('/ambulances/public/{id}', [AmbulanceController::class, 'publicShow']);
-
-// Route::middleware('throttle:api')->group(function () {
-//  Route::get('/posts', [PostController::class, 'index']);
-// });
+Route::get('ambulances/public', [AmbulanceController::class, 'publicIndex']);
+Route::get('ambulances/public/{id}', [AmbulanceController::class, 'publicShow']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    // Posts: authenticated actions
     Route::post('posts', [PostController::class, 'store']);
     Route::post('posts/{post}/comments', [PostController::class, 'comment']);
     Route::post('posts/{post}/ratings', [PostController::class, 'rate']);
@@ -75,26 +69,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('appointment-prescriptions', AppointmentPrescriptionController::class);
     Route::get('users/phone/{phone}', [UserController::class, 'findByPhone']);
     Route::post('users/phone/{phone}', [UserController::class, 'findOrCreateByPhone']);
-    //    
     Route::patch('blood-donors/interest', [BloodDonorController::class, 'updateInterest']);
     Route::get('blood-donors', [BloodDonorController::class, 'index']);
     Route::post('blood-donations', [BloodDonorController::class, 'store']);
     Route::get('my-blood-donations', [BloodDonorController::class, 'myDonations']);
-    //
-    Route::get('/ambulances', [AmbulanceController::class, 'index']);
-    Route::post('/ambulances', [AmbulanceController::class, 'store']);
-    Route::get('/ambulances/{id}', [AmbulanceController::class, 'show']);
-    Route::put('/ambulances/{id}', [AmbulanceController::class, 'update']);
-    Route::delete('/ambulances/{id}', [AmbulanceController::class, 'destroy']);
-    // store 
-    // Store routes
+    Route::get('ambulances', [AmbulanceController::class, 'index']);
+    Route::post('ambulances', [AmbulanceController::class, 'store']);
+    Route::get('ambulances/{id}', [AmbulanceController::class, 'show']);
+    Route::put('ambulances/{id}', [AmbulanceController::class, 'update']);
+    Route::delete('ambulances/{id}', [AmbulanceController::class, 'destroy']);
+
     Route::apiResource('stores', StoreController::class);
 
-    // Store Product routes
     Route::prefix('stores/{storeId}')->group(function () {
         Route::apiResource('products', StoreProductController::class);
 
-        // Stock routes
         Route::prefix('stocks')->group(function () {
             Route::get('/', [StoreStockController::class, 'index']);
             Route::post('/', [StoreStockController::class, 'store']);
@@ -102,7 +91,6 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/{stockId}', [StoreStockController::class, 'show']);
         });
 
-        // Product stock history
         Route::get('/products/{productId}/stocks', [StoreStockController::class, 'getProductStock']);
     });
 });
