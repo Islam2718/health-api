@@ -14,6 +14,7 @@ class StoreProductDTO
         public readonly bool $is_active = true,
         public readonly ?int $current_stock = null,
         public readonly ?string $medicine_name = null,
+        public readonly ?string $medicine_generic_name = null,
         public readonly ?string $created_at = null,
         public readonly ?string $updated_at = null
     ) {}
@@ -31,6 +32,7 @@ class StoreProductDTO
             'is_active' => $this->is_active,
             'current_stock' => $this->current_stock,
             'medicine_name' => $this->medicine_name,
+            'medicine_generic_name' => $this->medicine_generic_name,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at
         ], fn($value) => !is_null($value));

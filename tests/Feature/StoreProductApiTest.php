@@ -41,6 +41,8 @@ class StoreProductApiTest extends TestCase
 
         $response->assertStatus(201)
             ->assertJsonPath('data.medicine_id', $medicine->id)
+            ->assertJsonPath('data.medicine_name', $medicine->name)
+            ->assertJsonPath('data.medicine_generic_name', $medicine->generic_name)
             ->assertJsonPath('data.buy_price', '50.00')
             ->assertJsonPath('data.sale_price', '75.00')
             ->assertJsonPath('data.wholesale_price', '60.00')
