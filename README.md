@@ -114,15 +114,41 @@ Important directories:
 
 ```text
 app/
-  Domain/             Business entities and repository contracts
-  Application/        DTOs and use cases
-  Infrastructure/     Eloquent models and repository implementations
-  Http/               Controllers, requests, and API resources
-  Providers/          Dependency injection bindings
-database/             Migrations, factories, and seeders
-tests/                Feature and unit tests
+  Application/        DTOs, services, and use cases
+  Domain/              Business entities and repository contracts
+  Http/
+    Controllers/
+      Api/             API controllers grouped by feature
+        Auth/          Password, OTP, and Google authentication
+    Requests/          Form Request validation
+    Resources/         API response resources
+  Infrastructure/      Eloquent models, repositories, and services
+  Providers/            Dependency injection bindings
+database/
+  migrations/         Schema changes applied in timestamp order
+  factories/           Model factories for tests and seeders
+  seeders/             Development and demo data
+tests/
+  Feature/             HTTP and database behavior tests
+  Unit/                Isolated business-logic tests
 routes/api.php        Public and authenticated API routes
 ```
+
+### Namespace And Folder Rules
+
+Composer maps the `App\\` namespace to `app/`. A PHP class must match its
+directory and namespace exactly. For example:
+
+```text
+app/Http/Controllers/Api/Auth/GoogleLoginController.php
+App\\Http\\Controllers\\Api\\Auth\\GoogleLoginController
+```
+
+Feature controllers belong under `app/Http/Controllers/Api/<Feature>`. Keep
+routes in `routes/api.php`, import controllers using their full namespace, and
+run `composer dump-autoload` after moving classes. Update imports, routes,
+tests, and documentation in the same change; do not leave references to the
+old folder behind.
 
 Repository and use-case layers are used most extensively by the user,
 medicine, ambulance, blood donation, store, product, and stock modules. Some
@@ -138,6 +164,7 @@ All API routes are prefixed with `/api`.
 
 - `POST /api/register`
 - `POST /api/login`
+- `POST /api/login/google`
 - `POST /api/auth/otp-send`
 - `POST /api/auth/otp-verify`
 - `POST /api/auth/reset-password`
@@ -286,6 +313,27 @@ curl -X POST http://127.0.0.1:8000/api/login \
   -d '{"identifier":"user@example.com","password":"password"}'
 ```
 
+Google login accepts a Google OAuth access token and uses the existing `users`
+table. It creates or links a user by the provider's stable Google ID, and links
+an existing user when the Google email matches. No separate account table is
+used. The canonical endpoint is also `/api/login`; send `access_token` instead
+of `identifier` and `password`. `/api/login/google` is an equivalent explicit
+alias. Configure `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and
+`GOOGLE_REDIRECT_URI` in `.env`, then call:
+
+```bash
+curl -X POST https://health-api.phicsart.com/api/login \
+  -H "Content-Type: application/json" \
+  -d '{"access_token":"<google-access-token>"}'
+```
+
+The Google migration adds `users.google_id` as a nullable unique column. Run
+`php artisan migrate` before using the endpoint. Existing users are linked by
+email on their first successful Google login; new users receive a generated
+unusable password and authenticate through Google.
+
+Run `php artisan migrate` before using the endpoint.
+
 ```bash
 curl http://127.0.0.1:8000/api/my-appointments \
   -H "Authorization: Bearer <token>"
@@ -304,9 +352,9 @@ Scramble exposes interactive documentation at:
 http://127.0.0.1:8000/docs/api
 ```
 
-The generated OpenAPI file is written to `storage/api-docs.json`. Keep
-controller, request, and resource descriptions current so the generated
-documentation remains useful.
+The generated OpenAPI file is written to `api.json` by the current Scramble
+configuration. Keep controller, request, and resource descriptions current so
+the generated documentation remains useful.
 
 ## Testing And Quality
 
@@ -335,6 +383,23 @@ composer test
 Use `php vendor/bin/pint` to apply PHP formatting. There is currently no
 configured JavaScript linter or static-analysis command.
 
+For a focused authentication check:
+
+```bash
+php artisan test --filter="LoginFlowTest|GoogleLoginTest"
+php artisan route:list --path=api/login
+```
+
+For a deployment-oriented check, run migrations against the target database,
+clear cached configuration, rebuild API documentation, and run the full suite:
+
+```bash
+php artisan migrate --force
+php artisan optimize:clear
+php artisan scramble:export
+composer test
+```
+
 ## Development Standards
 
 For a new feature:
@@ -358,6 +423,11 @@ authorization, database transactions for multi-write operations, and
 idempotent seeders. Do not place business rules, raw queries, or authorization
 decisions in controllers when they can live in the owning application or
 domain abstraction.
+
+When moving a class, update its namespace, every import, route registration,
+test reference, and documentation example in the same change. Verify the
+move with `composer dump-autoload`, `php artisan route:list`, and the relevant
+feature tests before changing adjacent modules.
 
 ## Current Improvement Roadmap
 

@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\AppointmentPrescriptionController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\ForgotPasswordController;
+use App\Http\Controllers\Api\Auth\GoogleLoginController;
 use App\Http\Controllers\Api\BloodDonorController;
 use App\Http\Controllers\Api\ChamberController;
 use App\Http\Controllers\Api\DoctorController;
@@ -23,6 +24,7 @@ use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('login', [AuthController::class, 'login']);
+Route::post('login/google', [GoogleLoginController::class, 'login']);
 Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
 Route::middleware('auth:sanctum')->patch('profile', [AuthController::class, 'updateProfile']);
 Route::post('register', [AuthController::class, 'register']);
