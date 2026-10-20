@@ -178,6 +178,26 @@ class StoreApiTest extends TestCase
         ]);
     }
 
+    public function test_user_can_update_store_without_changing_its_trade_license(): void
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $store = Store::factory()->create([
+            'user_id' => $user->id,
+            'trade_license_no' => 'TL-2024-001',
+        ]);
+
+        $response = $this->putJson("/api/stores/{$store->id}", [
+            'store_name' => 'Updated Pharmacy',
+            'store_address' => 'Updated Address, Dhaka',
+            'trade_license_no' => 'TL-2024-001',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.trade_license_no', 'TL-2024-001');
+    }
+
     public function test_user_can_only_update_own_store(): void
     {
         $owner = User::factory()->create();

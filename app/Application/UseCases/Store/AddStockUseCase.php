@@ -22,6 +22,12 @@ class AddStockUseCase
             ]);
         }
 
+        if ($dto->transaction_type === 'sale' && $storeProduct->current_stock < $dto->quantity) {
+            throw ValidationException::withMessages([
+                'quantity' => 'Insufficient stock for this sale.'
+            ]);
+        }
+
         // Calculate total price
         $totalPrice = $dto->quantity * $dto->unit_price;
         

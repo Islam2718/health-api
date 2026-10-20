@@ -27,7 +27,7 @@ class StoreRequest extends FormRequest
                 'required', 
                 'string', 
                 'max:50',
-                'unique:stores,trade_license_no,' . $this->route('id')
+                'unique:stores,trade_license_no,' . $this->route('store')
             ];
             $rules['is_active'] = ['boolean'];
         } else {

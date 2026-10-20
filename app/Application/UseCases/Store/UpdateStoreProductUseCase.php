@@ -35,6 +35,7 @@ class UpdateStoreProductUseCase
         }
 
         $storeProduct = $this->storeProductRepository->update($dto->id, $dto->toArray());
+        $storeProduct->load('medicine');
         
         return new StoreProductDTO(
             id: $storeProduct->id,
@@ -45,6 +46,8 @@ class UpdateStoreProductUseCase
             wholesale_price: $storeProduct->wholesale_price,
             minimum_stock: $storeProduct->minimum_stock,
             is_active: $storeProduct->is_active,
+            medicine_name: $storeProduct->medicine?->name,
+            medicine_generic_name: $storeProduct->medicine?->generic_name,
             created_at: $storeProduct->created_at?->toISOString(),
             updated_at: $storeProduct->updated_at?->toISOString()
         );

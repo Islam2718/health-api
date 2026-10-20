@@ -1,468 +1,452 @@
 # Health API
 
-Health API is a modular backend platform for healthcare services built with Laravel 13 and Clean Architecture principles. The project is designed to grow into a multi-domain system for patients, doctors, hospitals, ambulances, diagnostic centers, and pharmacy operations.
+Health API is a Laravel 13 backend for healthcare workflows including users,
+doctors, appointments, hospitals, medicines, pharmacies, blood donation, and
+ambulance services.
 
-## Project Goals
-
-- Build a scalable and maintainable API foundation
-- Keep business logic independent from framework-specific code
-- Support future modules without tightly coupling features
-- Provide a clean structure for onboarding new developers quickly
-
-## Tech Stack
+## Stack
 
 - PHP 8.3+
 - Laravel 13
-- Laravel Sanctum for authentication
-- Scramble for API documentation
-- Vite + Tailwind for frontend assets
-- PHPUnit for automated testing
+- Laravel Sanctum for bearer-token authentication
+- Scramble for OpenAPI documentation
+- SQLite by default; MySQL and other Laravel database drivers are supported
+- PHPUnit for feature and unit tests
+- Vite and Tailwind CSS for frontend assets
 
-## Architecture Overview
+## Requirements
 
-This project follows a layered Clean Architecture approach:
+- PHP 8.3 or newer with the extensions required by Laravel
+- Composer
+- Node.js and npm
+- A database supported by Laravel
 
-Request -> Controller -> UseCase -> Repository -> Model/Database
+The default local configuration uses SQLite, database-backed sessions, cache,
+and queues. Redis and mail settings are also available through `.env`.
 
-### Recommended folder structure
+## Installation
 
-```text
-app/
-├── Domain/
-│   ├── Entities/
-│   └── Interfaces/
-├── Application/
-│   ├── DTOs/
-│   └── UseCases/
-├── Infrastructure/
-│   └── Persistence/
-├── Http/
-│   ├── Controllers/
-│   ├── Requests/
-│   └── Resources/
-└── Providers/
-```
-
-## Development Principles
-
-All contributors should follow these rules:
-
-- Keep controllers thin and focused on request handling
-- Put business logic in Use Cases
-- Use Form Requests for validation
-- Use DTOs for input/output transfer between layers
-- Put repository interfaces in the Domain layer and implementations in Infrastructure
-- Avoid mixing framework code with core business rules
-- Prefer dependency injection over hard-coded dependencies
-- Write tests for new features and bug fixes
-
-## Next-Level Developer Guidelines
-
-Use this project structure when adding new modules:
-
-- app/Domain/Entities for domain models
-- app/Domain/Interfaces for repository contracts
-- app/Application/DTOs for request/response objects
-- app/Application/UseCases for business workflows
-- app/Infrastructure/Persistence for repository implementations and Eloquent models
-- app/Http/Controllers/Api for HTTP controllers and response resources
-
-Best practices for new features:
-
-- Add only one responsibility per class
-- Preserve a single source of truth for business rules in Use Cases
-- Keep API validation inside Form Requests or dedicated validation classes
-- Use API Resources for consistent JSON output
-- Register interface bindings in app/Providers/AppServiceProvider.php
-- Keep routes in routes/api.php, and separate public APIs from authenticated routes
-- Add seeders using idempotent statements (`updateOrInsert` or factories)
-- Keep documentation updated alongside code changes
-- Add tests for endpoints, use cases, and persistence logic
-
-Use these commands for development workflow:
-
-- `php artisan migrate --seed` to build schema and sample data
-- `php artisan route:list` to verify route registration
-- `composer test` to run automated tests
-- `php artisan tinker` for quick database checks
-
-## Getting Started
-
-### 1. Clone and enter the project
+Clone the repository and enter the project directory:
 
 ```bash
 git clone <repo-url>
 cd health-api
 ```
 
-### 2. Install PHP and Node dependencies
+Install dependencies and create the environment file:
 
 ```bash
 composer install
+cp .env.example .env
+php artisan key:generate
 npm install
 ```
 
-### 3. Environment setup
+On Windows PowerShell, use this environment-file command instead:
 
-```bash
-cp .env.example .env
-php artisan key:generate
+```powershell
+Copy-Item .env.example .env
 ```
 
-### 4. Database setup
+Configure `DB_*`, `APP_URL`, mail, storage, and queue settings in `.env` as
+needed. For the default SQLite setup, create the database file if it does not
+exist, then run migrations:
 
 ```bash
 php artisan migrate
 ```
 
-### 5. Run the application
+The included seeders can be run with:
 
-For local development, use:
+```bash
+php artisan db:seed
+```
+
+`composer setup` is also available for a fresh environment. It installs PHP
+and Node dependencies, creates `.env`, generates the application key, runs
+migrations, and builds frontend assets. It does not run the seeders.
+
+If profile images are served from the public disk, create the storage link:
+
+```bash
+php artisan storage:link
+```
+
+## Running Locally
+
+Run the complete local development workflow with:
 
 ```bash
 composer run dev
 ```
 
-Or run the backend and frontend separately:
+This starts the Laravel server, queue listener, log viewer, and Vite process.
+To run services separately:
 
 ```bash
 php artisan serve
+php artisan queue:listen --tries=1 --timeout=0
 npm run dev
 ```
+
+The API is normally available at `http://127.0.0.1:8000`. The health endpoint
+is `GET /up`.
+
+## Architecture
+
+The codebase is moving toward Clean Architecture, but it is currently hybrid:
+
+```text
+HTTP Request
+    |
+    +-- Form Request / controller validation
+    |
+    +-- API Controller
+    |
+    +-- Use Case and DTOs (where implemented)
+    |
+    +-- Repository interface and implementation (where implemented)
+    |
+    +-- Eloquent model and database
+```
+
+Important directories:
+
+```text
+app/
+  Application/        DTOs, services, and use cases
+  Domain/              Business entities and repository contracts
+  Http/
+    Controllers/
+      Api/             API controllers grouped by feature
+        Auth/          Password, OTP, and Google authentication
+    Requests/          Form Request validation
+    Resources/         API response resources
+  Infrastructure/      Eloquent models, repositories, and services
+  Providers/            Dependency injection bindings
+database/
+  migrations/         Schema changes applied in timestamp order
+  factories/           Model factories for tests and seeders
+  seeders/             Development and demo data
+tests/
+  Feature/             HTTP and database behavior tests
+  Unit/                Isolated business-logic tests
+routes/api.php        Public and authenticated API routes
+```
+
+### Namespace And Folder Rules
+
+Composer maps the `App\\` namespace to `app/`. A PHP class must match its
+directory and namespace exactly. For example:
+
+```text
+app/Http/Controllers/Api/Auth/GoogleLoginController.php
+App\\Http\\Controllers\\Api\\Auth\\GoogleLoginController
+```
+
+Feature controllers belong under `app/Http/Controllers/Api/<Feature>`. Keep
+routes in `routes/api.php`, import controllers using their full namespace, and
+run `composer dump-autoload` after moving classes. Update imports, routes,
+tests, and documentation in the same change; do not leave references to the
+old folder behind.
+
+Repository and use-case layers are used most extensively by the user,
+medicine, ambulance, blood donation, store, product, and stock modules. Some
+older or smaller modules still use controllers and Eloquent directly. New
+work should follow the layered path and gradually move existing business rules
+out of controllers.
+
+## API Overview
+
+All API routes are prefixed with `/api`.
+
+### Public routes
+
+- `POST /api/register`
+- `POST /api/login`
+- `POST /api/login/google`
+- `POST /api/auth/otp-send`
+- `POST /api/auth/otp-verify`
+- `POST /api/auth/reset-password`
+- `GET /api/posts` and `GET /api/posts/{id}`
+- `GET /api/doctors/public` and `GET /api/doctors/public/{id}`
+- `GET /api/medicine-companies/public` and `GET /api/medicine-companies/public/{id}`
+- `GET /api/medicines/public` and `GET /api/medicines/public/{id}`
+- `GET /api/blood-donors/public` and `GET /api/blood-donors/public/{id}`
+- `GET /api/ambulances/public` and `GET /api/ambulances/public/{id}`
+
+### Authenticated modules
+
+Send a Sanctum token with protected requests:
+
+```http
+Authorization: Bearer <token>
+```
+
+Authenticated routes currently cover:
+
+- Profile, users, and phone lookup
+- Doctors, education, professional experience, chambers, and schedules
+- Hospitals
+- Appointments and appointment prescriptions
+- Posts, comments, and ratings
+- Blood donor interest and donations
+- Ambulances
+- Stores, store products, and stock transactions
+
+Use `php artisan route:list --path=api` for the authoritative route list. CRUD
+modules generally use Laravel API resource conventions. Special workflow
+routes include:
+
+```text
+GET   /api/my-appointments
+GET   /api/appointments/upcoming
+GET   /api/my-prescriptions
+GET   /api/my-blood-donations
+PATCH /api/blood-donors/interest
+GET   /api/stores/{storeId}/stocks/summary
+GET   /api/stores/{storeId}/products/{productId}/stocks
+```
+
+Public doctor listings support `designation`, `department`, `address`,
+`search`, `random`, and `per_page` query parameters. Store product listings
+support `search`, `is_active`, `low_stock`, and `per_page`.
+
+## Medicine Orders
+
+The pharmacy order module creates medicine orders for a store. An order may
+belong to a registered customer or may be a guest order:
+
+- `orders.user_id` is nullable and represents the optional customer user ID.
+- `customer_id` may be sent when the customer already exists in `users`.
+- If `customer_id` is omitted, the order is created without a customer.
+- Customer name and phone are not accepted, stored, or returned by the order
+  API.
+- The authenticated user creating an order must own the selected store.
+- `payment_method` defaults to `CASH` when it is omitted.
+- Product prices are read from the store product and copied into order items,
+  preserving the price used at purchase time.
+- Order creation checks the current available stock, but does not yet create a
+  `sale` stock transaction. Inventory deduction belongs in the future order
+  confirmation/payment workflow.
+
+### Order endpoints
+
+```text
+POST  /api/stores/{storeId}/orders
+GET   /api/my-orders
+GET   /api/my-orders/{orderId}
+GET   /api/stores/{storeId}/orders
+GET   /api/stores/{storeId}/orders/{orderId}
+PATCH /api/stores/{storeId}/orders/{orderId}/status
+```
+
+The customer order endpoints return only orders linked to the authenticated
+user. Store order endpoints are restricted to the owner of that store. Store
+order listings accept `status` and `per_page` query parameters.
+
+### Create an order
+
+Registered customer order:
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/stores/3/orders \
+  -H "Authorization: Bearer <store-owner-token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customer_id": 39,
+    "payment_method": "CASH",
+    "shipping_address": "Dhaka",
+    "items": [
+      {"store_product_id": 3, "quantity": 2}
+    ]
+  }'
+```
+
+Guest order:
+
+```json
+{
+  "items": [
+    {"store_product_id": 3, "quantity": 1}
+  ],
+  "shipping_address": "Dhaka",
+  "notes": "Deliver during business hours"
+}
+```
+
+Each item must reference an active `store_product_id` belonging to the
+selected store. The requested quantity must be available. Optional financial
+fields are `discount` and `delivery_fee`; the server calculates `subtotal`
+and `total`. The default order status is `pending`, and the default payment
+status is `pending`.
+
+### Order database changes
+
+Order data is stored in `orders` and `order_items`. The migration sequence is:
+
+```text
+2026_09_03_000000_create_orders_and_order_items_tables
+2026_09_03_000001_update_orders_for_optional_customers
+```
+
+After deploying these files to an existing environment, run migrations before
+calling the order endpoint:
+
+```bash
+php artisan migrate --force
+php artisan optimize:clear
+php artisan migrate:status
+```
+
+The compatibility migration makes `orders.user_id` nullable, sets the payment
+default to `CASH`, and removes the old `contact_phone` column when it exists.
+Never use `migrate:fresh` on a production database.
+
+### Authentication examples
+
+Register or log in, then use the returned token for protected requests:
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/login \
+  -H "Content-Type: application/json" \
+  -d '{"identifier":"user@example.com","password":"password"}'
+```
+
+Google login accepts a Google OAuth access token and uses the existing `users`
+table. It creates or links a user by the provider's stable Google ID, and links
+an existing user when the Google email matches. No separate account table is
+used. The canonical endpoint is also `/api/login`; send `access_token` instead
+of `identifier` and `password`. `/api/login/google` is an equivalent explicit
+alias. Configure `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and
+`GOOGLE_REDIRECT_URI` in `.env`, then call:
+
+```bash
+curl -X POST https://health-api.phicsart.com/api/login \
+  -H "Content-Type: application/json" \
+  -d '{"access_token":"<google-access-token>"}'
+```
+
+The Google migration adds `users.google_id` as a nullable unique column. Run
+`php artisan migrate` before using the endpoint. Existing users are linked by
+email on their first successful Google login; new users receive a generated
+unusable password and authenticate through Google.
+
+Run `php artisan migrate` before using the endpoint.
+
+```bash
+curl http://127.0.0.1:8000/api/my-appointments \
+  -H "Authorization: Bearer <token>"
+```
+
+OTP delivery is currently configured for local development. The current
+implementation returns the generated OTP in the response for testing; this
+must be replaced with a real delivery provider and verified reset state before
+production use.
+
+## API Documentation
+
+Scramble exposes interactive documentation at:
+
+```text
+http://127.0.0.1:8000/docs/api
+```
+
+The generated OpenAPI file is written to `api.json` by the current Scramble
+configuration. Keep controller, request, and resource descriptions current so
+the generated documentation remains useful.
+
+## Testing And Quality
+
+Run the full test suite:
+
+```bash
+composer test
+```
+
+Equivalent commands:
+
+```bash
+php artisan test
+php artisan test --filter=StoreApiTest
+```
+
+Before opening a pull request, run:
+
+```bash
+php vendor/bin/pint --test
+php artisan route:list --path=api
+npm run build
+composer test
+```
+
+Use `php vendor/bin/pint` to apply PHP formatting. There is currently no
+configured JavaScript linter or static-analysis command.
+
+For a focused authentication check:
+
+```bash
+php artisan test --filter="LoginFlowTest|GoogleLoginTest"
+php artisan route:list --path=api/login
+```
+
+For a deployment-oriented check, run migrations against the target database,
+clear cached configuration, rebuild API documentation, and run the full suite:
+
+```bash
+php artisan migrate --force
+php artisan optimize:clear
+php artisan scramble:export
+composer test
+```
+
+## Development Standards
+
+For a new feature:
+
+1. Define the domain behavior and data constraints.
+2. Add or update migrations, factories, and seeders where necessary.
+3. Add a repository contract under `app/Domain/Interfaces` when persistence
+   needs an abstraction.
+4. Implement the use case and DTO under `app/Application`.
+5. Add a repository implementation and Eloquent model under
+   `app/Infrastructure/Persistence`.
+6. Keep the controller focused on HTTP orchestration.
+7. Validate input with a Form Request and shape output with an API Resource.
+8. Bind interfaces in `AppServiceProvider`.
+9. Add feature tests for the endpoint and unit tests for isolated business
+   rules.
+10. Update this README and Scramble metadata when the public API changes.
+
+Prefer dependency injection, descriptive names, small classes, explicit
+authorization, database transactions for multi-write operations, and
+idempotent seeders. Do not place business rules, raw queries, or authorization
+decisions in controllers when they can live in the owning application or
+domain abstraction.
+
+When moving a class, update its namespace, every import, route registration,
+test reference, and documentation example in the same change. Verify the
+move with `composer dump-autoload`, `php artisan route:list`, and the relevant
+feature tests before changing adjacent modules.
+
+## Current Improvement Roadmap
+
+- Move direct Eloquent workflows into use cases and repositories.
+- Add policies and role-aware authorization to user, appointment, prescription,
+  and hospital operations.
+- Add focused tests for post visibility, OTP reset security, and authorization
+  boundaries.
+- Replace development OTP responses with email or SMS delivery.
+- Define stock arithmetic and concurrency rules for every transaction type.
+- Add static analysis and JavaScript linting to the CI quality gate.
 
 ## Useful Commands
 
 ```bash
-composer test
-php artisan migrate
-php artisan route:list
 php artisan tinker
-php artisan pint
+php artisan migrate:fresh --seed
+php artisan config:clear
+php artisan cache:clear
+php artisan route:list --path=api
+php artisan scramble:export
 ```
-
-## API Documentation
-
-API documentation is generated automatically with Scramble.
-
-Open the docs at:
-
-```text
-http://127.0.0.1:8000/docs/api
-
-## Posts / Discussion Module
-
-This feature allows users (patients or doctors) to post content, comment, reply to comments, and rate posts.
-
-Behavior summary:
-- Any user (unauthenticated) can read public posts and their comments.
-- Creating posts, commenting, replying and rating require authentication (Sanctum).
-
-Endpoints (quick reference):
-
-- GET /api/posts — list public posts (paginated)
-- GET /api/posts/{id} — show a single post with comments and ratings
-- POST /api/posts — create a new post (auth) — body: `{ title?, body, tags?, type?, is_public? }`
-- POST /api/posts/{post}/comments — add a comment or reply (auth) — body: `{ body, parent_id? }`
-- POST /api/posts/{post}/ratings — add or update a rating (auth) — body: `{ rating (1-5), review? }`
-
-Example: create a post (authenticated)
-
-```bash
-curl -X POST "http://localhost/api/posts" \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{"title":"My issue","body":"I have chest pain","type":"PATIENT_ISSUE"}'
-```
-
-Example: comment on a post (authenticated)
-
-```bash
-curl -X POST "http://localhost/api/posts/1/comments" \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{"body":"Have you tried resting?"}'
-```
-
-Example: rate a post (authenticated)
-
-```bash
-curl -X POST "http://localhost/api/posts/1/ratings" \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{"rating":5,"review":"Very helpful"}'
-```
-
-Notes for implementers:
-- The module uses `posts`, `comments` and `post_ratings` tables.
-- Comments support nested replies via `parent_id`.
-- Ratings are unique per user+post and are updated if the same user rates again.
-- API documentation is generated with Scramble — controllers and FormRequests are annotated to improve docs output.
-
-```
-
-## Authentication
-
-The current authentication flow uses Laravel Sanctum.
-
-## Doctor, Education, Hospital, and Appointment APIs
-
-The API now supports authenticated profile modules for doctors, hospitals, and appointment scheduling:
-
-### Doctor endpoints
-
-- GET /api/doctors
-- POST /api/doctors
-- GET /api/doctors/{id}
-- PUT /api/doctors/{id}
-- DELETE /api/doctors/{id}
-
-### Education endpoints
-
-- GET /api/educations
-- POST /api/educations
-- GET /api/educations/{id}
-- PUT /api/educations/{id}
-- DELETE /api/educations/{id}
-
-### Professional experience endpoints
-
-- GET /api/professional-experiences
-- POST /api/professional-experiences
-- GET /api/professional-experiences/{id}
-- PUT /api/professional-experiences/{id}
-- DELETE /api/professional-experiences/{id}
-
-### Doctor schedule endpoints
-
-- GET /api/doctor-schedules
-- POST /api/doctor-schedules
-- GET /api/doctor-schedules/{id}
-- PUT /api/doctor-schedules/{id}
-- DELETE /api/doctor-schedules/{id}
-
-### User endpoints
-
-- GET /api/users
-- POST /api/users
-- GET /api/users/{id}
-- PUT /api/users/{id}
-- DELETE /api/users/{id}
-- GET /api/users/phone/{phone}
-- POST /api/users/phone/{phone}
-
-### Hospital endpoints
-
-- GET /api/hospitals
-- POST /api/hospitals
-- GET /api/hospitals/{id}
-- PUT /api/hospitals/{id}
-- DELETE /api/hospitals/{id}
-
-### User phone lookup endpoints
-
-- GET /api/users/phone/{phone}
-- POST /api/users/phone/{phone}
-
-### User phone lookup notes
-
-- `GET /api/users/phone/{phone}` checks whether a user exists with that phone number.
-- If the user exists, it returns:
-  - `data` => the user record
-  - `appointments` => aggregated appointments for the user as patient or doctor
-  - `prescriptions` => related patient prescriptions for the user
-- `POST /api/users/phone/{phone}` creates a new patient user when the phone number is not already registered and returns:
-  - `data` => the created user
-  - `appointments` => `[]`
-  - `prescriptions` => `[]`
-- This supports doctor workflows where a doctor can enter a patient phone and continue to the next appointment step.
-- These lookup routes are separate from standard `/api/users/{id}` to avoid route conflicts and clearly separate lookup vs. create behavior.
-
-### Appointment endpoints
-
-- GET /api/appointments — doctor sees their assigned appointments
-- GET /api/my-appointments — patient sees own appointments
-- POST /api/appointments
-- GET /api/appointments/{id}
-- PUT /api/appointments/{id}
-- DELETE /api/appointments/{id}
-- GET /api/appointments/upcoming — doctor sees upcoming assigned appointments
-
-### Public doctor listing endpoint
-
-- GET /api/doctors/public
-- GET /api/doctors/public/{id}
-
-Query parameters:
-- `designation` => filter doctor title
-- `department` => filter doctor specialization
-- `address` => search doctor user address
-- `search` => search across doctor name, title, specialization, and address
-- `random` => `true` to randomize results
-- `per_page` => pagination page size
-
-This endpoint is public and does not require a bearer token.
-
-### Public doctor details endpoint
-
-- GET /api/doctors/public/{id}
-
-This returns the selected doctor profile along with related chambers and available schedules in a nested structure. It is intended for patient-facing doctor detail pages.
-
-### Prescription endpoints
-
-- GET /api/appointment-prescriptions — doctor sees prescriptions they wrote
-- GET /api/my-prescriptions — patient sees own prescriptions
-- POST /api/appointment-prescriptions
-- GET /api/appointment-prescriptions/{id}
-- PUT /api/appointment-prescriptions/{id}
-- DELETE /api/appointment-prescriptions/{id}
-
-### Prescription endpoint notes
-
-- Prescriptions are created by the doctor after appointment consultation.
-- Each prescription links `doctor_user_id`, `patient_user_id`, `appointment_id`, `schedule_id`, `chamber_id`, and `appointment_type`.
-- Doctors record vitals and symptoms, including blood pressure, smoking status, sugar level, and general symptoms.
-- The `medicines` field is stored as JSON and supports medicine schedule strings like `1+0+1`, `1+0+0`, or `0+1+0`.
-- The prescription also captures `diagnosis`, `prescription_date`, and optional `notes`.
-
-### Current implementation notes
-
-- All profile-related and scheduling modules are protected by Sanctum authentication.
-- Hospitals are associated with the authenticated user and can be managed from the hospital resource.
-- Doctor schedules include `consultation_fee`, `max_patients`, and optional chamber association.
-- Appointments link a patient, doctor, optional hospital or chamber, and optional doctor schedule.
-- The appointment workflow supports consultation fee (`consultation_fee`), discount, appointment type, status, date, and optional time.
-- Controllers use the current request validation pattern; future improvements may move validation into dedicated Form Requests for reusability.
-- New modules should follow the existing Laravel convention of routes, controllers, models, and tests in the same domain structure.
-
-## Developer Guidelines for Public Doctor Listing
-
-- The public doctor listing endpoint is `GET /api/doctors/public`.
-- This endpoint is intentionally public and does not require a bearer token.
-- It is implemented in `app/Http/Controllers/Api/DoctorController.php` as `publicIndex`.
-- The endpoint supports optional filters:
-  - `designation` for doctor title
-  - `department` for doctor specialization
-  - `address` for doctor user address
-  - `search` for doctor name, title, specialization, or address
-  - `random=true` to randomize results
-  - `per_page` for pagination size
-- The response includes `data` and pagination metadata for frontend listing.
-- Use this endpoint for homepage doctor lists and the doctor directory page.
-- If new homepage fields are needed later, extend the controller query and include them in the payload carefully.
-
-### Recommended approach for future changes
-
-- Keep the public listing endpoint separate from authenticated doctor profile routes.
-- Add new filters in the controller using query validation and `where` clauses.
-- Keep the controller action focused on request handling and query building.
-- Avoid adding authentication requirements to this endpoint unless the feature explicitly needs it.
-
-### Expected login payload example
-
-```json
-{
-  "identifier": "email or username or phone",
-  "password": "your-password"
-}
-```
-
-### Auth endpoint notes
-
-- Registration is handled in the auth controller at [app/Http/Controllers/Api/Auth/AuthController.php](app/Http/Controllers/Api/Auth/AuthController.php).
-- A new user can register with name, email or phone, password, and password confirmation.
-- At least one of email or phone must be provided.
-- Profile fields such as gender, date_of_birth, profile_image, address, blood_group, and marital_status are not part of initial registration and should be updated later after login.
-- The user update API is available at /api/users/{id} and supports the profile fields above.
-
-## Coding Guidelines for Future Developers
-
-### Feature development workflow
-
-1. Create a feature branch from the main branch
-2. Add or update the relevant Use Case, DTO, repository interface, and implementation
-3. Keep controllers focused on HTTP concerns only
-4. Add validation with Form Requests when the feature grows beyond a simple CRUD flow
-5. Write tests before finalizing the feature
-6. Run the relevant test suite before pushing changes
-7. Document new endpoints and module behavior in this README
-
-### Naming and structure
-
-- Use descriptive names for modules and classes
-- Follow Laravel naming conventions
-- Keep each feature self-contained where possible
-- Group related routes, controllers, requests, and use cases by domain/module
-
-### Avoid
-
-- Fat controllers
-- Business logic inside controllers
-- Direct database logic inside HTTP layer
-- Repeated code across modules
-- Large mixed-purpose classes
-
-## Testing Expectations
-
-Every new feature or bug fix should include tests when practical.
-
-Run tests with:
-
-```bash
-composer test
-# Or run the Laravel test suite directly:
-php artisan test
-```
-
-The stock and store-product feature tests use an isolated database and create
-their required medicine company and category records during test setup.
-
-## Pharmacy Inventory APIs
-
-Store product and stock endpoints require Sanctum authentication and are
-restricted to the authenticated store owner.
-
-### Store product endpoints
-
-- GET /api/stores/{store}/products
-- POST /api/stores/{store}/products
-- GET /api/stores/{store}/products/{product}
-- PUT /api/stores/{store}/products/{product}
-- DELETE /api/stores/{store}/products/{product}
-
-The product listing supports `search`, `is_active`, `low_stock`, and `per_page`
-query parameters.
-
-### Stock endpoints
-
-- GET /api/stores/{store}/stocks
-- POST /api/stores/{store}/stocks
-- GET /api/stores/{store}/stocks/{stock}
-- GET /api/stores/{store}/products/{product}/stocks
-- GET /api/stores/{store}/stocks/summary
-
-Stock transactions support `purchase` and `sale` types. Product stock is
-calculated as total purchases minus total sales. Stock responses serialize
-dates as ISO 8601 timestamps and monetary values with two decimal places.
-
-## Module Roadmap
-
-Planned or ongoing modules include:
-
-- User / Patient management
-- Doctor management
-- Hospital management
-- Ambulance services
-- Diagnostic center management
-- Pharmacy / medicine store workflows
-- Blood donor services
-
-## AI and Contributor Guidance
-
-When working with AI tools or asking for implementation help, share this README and describe the module or feature you want to build. Prefer prompts such as:
-
-> Implement the Hospital module using the existing Clean Architecture structure and follow the project conventions in this README.
-
-## Final Note
-
-This repository is intended to be a long-term, scalable, and maintainable platform. New features should be added in a way that preserves the project’s architecture and keeps the codebase easy for future developers to understand.

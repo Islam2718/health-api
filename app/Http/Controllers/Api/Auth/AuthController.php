@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Requests\LoginRequest;
+use App\Http\Controllers\Api\Auth\GoogleLoginController;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
@@ -16,6 +17,10 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $request): JsonResponse
     {
+        if ($request->filled('access_token')) {
+            return app(GoogleLoginController::class)->login($request);
+        }
+
         $validated = $request->validate([
             'identifier' => ['required', 'string'],
             'password' => ['required', 'string'],
